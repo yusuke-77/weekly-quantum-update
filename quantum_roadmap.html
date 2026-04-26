@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量子コンピューター 実用化ロードマップ 2026-2035</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    background: #0a0e1a;
+    color: #e0e6f0;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* ===== ヘッダー ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .header h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: linear-gradient(90deg, #76d9f5, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .header p {
+    color: #7a8aaa;
+    font-size: 0.85rem;
+  }
+  .now-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, #f472b6, #a78bfa);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 99px;
+    margin-top: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ===== NVIDIAバナー ===== */
+  .nvidia-banner {
+    background: linear-gradient(135deg, #0f1f0f 0%, #1a2e1a 50%, #0f1f0f 100%);
+    border: 1px solid #76b900;
+    border-radius: 14px;
+    padding: 18px 24px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .nvidia-logo {
+    background: #76b900;
+    color: #000;
+    font-weight: 900;
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.08em;
+  }
+  .nvidia-content h3 {
+    color: #76b900;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+  .nvidia-content p {
+    color: #9ab87a;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+  .nvidia-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .pill {
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+  .pill-green { background: #1a3a0a; color: #76b900; border: 1px solid #76b900; }
+  .pill-blue  { background: #0a1a3a; color: #60a5fa; border: 1px solid #3b82f6; }
+  .pill-pink  { background: #2a0a20; color: #f472b6; border: 1px solid #ec4899; }
+
+  /* ===== フェーズ時代区分 ===== */
+  .era-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .era {
+    padding: 12px 16px;
+    text-align: center;
+  }
+  .era-1 { background: #1a1030; }
+  .era-2 { background: #0f1e30; }
+  .era-3 { background: #0f2018; }
+  .era-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .era-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  .era-range {
+    font-size: 0.72rem;
+    opacity: 0.5;
+    margin-top: 2px;
+  }
+  .era-1 .era-name { color: #a78bfa; }
+  .era-2 .era-name { color: #60a5fa; }
+  .era-3 .era-name { color: #34d399; }
+
+  /* ===== タイムライン ===== */
+  .timeline {
+    position: relative;
+    padding-left: 20px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, #a78bfa, #60a5fa, #34d399);
+  }
+
+  .tl-year {
+    margin-bottom: 30px;
+    position: relative;
+  }
+  .tl-year-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .tl-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: #0a0e1a;
+    flex-shrink: 0;
+    margin-left: -6px;
+  }
+  .dot-now  { border-color: #f472b6; box-shadow: 0 0 10px #f472b6; }
+  .dot-near { border-color: #60a5fa; }
+  .dot-mid  { border-color: #34d399; }
+  .dot-far  { border-color: #fbbf24; }
+
+  .year-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .year-sub {
+    font-size: 0.75rem;
+    color: #7a8aaa;
+    margin-left: 4px;
+  }
+  .now-marker {
+    background: linear-gradient(90deg, #f472b6, #a78bfa);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 99px;
+    margin-left: 6px;
+  }
+
+  .cards {
+    margin-left: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .card {
+    background: #111827;
+    border: 1px solid #1f2d45;
+    border-radius: 10px;
+    padding: 13px 15px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: #3b5070; }
+  .card-company {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .card-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  .card-desc {
+    font-size: 0.72rem;
+    color: #7a8aaa;
+    line-height: 1.5;
+  }
+
+  .c-ibm   { color: #60a5fa; }
+  .c-google{ color: #f87171; }
+  .c-fujitsu{ color: #fbbf24; }
+  .c-nvidia { color: #76b900; }
+  .c-ms    { color: #a78bfa; }
+  .c-ion   { color: #34d399; }
+
+  .card-full { grid-column: 1 / -1; }
+
+  /* ===== 応用領域マトリクス ===== */
+  .section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7a8aaa;
+    margin: 36px 0 14px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #1f2d45;
+  }
+
+  .app-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .app-card {
+    background: #111827;
+    border: 1px solid #1f2d45;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .app-icon { font-size: 1.2rem; margin-bottom: 6px; }
+  .app-name { font-size: 0.78rem; font-weight: 700; margin-bottom: 4px; }
+  .app-timing {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    display: inline-block;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .t-early  { background: #1a1030; color: #a78bfa; border: 1px solid #6d28d9; }
+  .t-mid    { background: #0f1e30; color: #60a5fa; border: 1px solid #2563eb; }
+  .t-late   { background: #0f2018; color: #34d399; border: 1px solid #059669; }
+  .app-note { font-size: 0.68rem; color: #7a8aaa; line-height: 1.4; }
+
+  /* ===== フッター ===== */
+  .footer {
+    margin-top: 36px;
+    padding-top: 20px;
+    border-top: 1px solid #1f2d45;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 10px;
+  }
+  .footer-sources {
+    font-size: 0.65rem;
+    color: #7a8aaa;
+    line-height: 1.6;
+  }
+  .footer-date {
+    font-size: 0.65rem;
+    color: #4a5568;
+  }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <h1>量子コンピューター 実用化ロードマップ</h1>
+  <p>NISQ時代からフォールトトレラント時代へ — 現在地と今後の展望</p>
+  <div class="now-badge">📍 現在地：2026年4月</div>
+</div>
+
+<!-- NVIDIAバナー -->
+<div class="nvidia-banner">
+  <div class="nvidia-logo">NVIDIA</div>
+  <div class="nvidia-content">
+    <h3>🔥 NVIDIA Ising — 2026年4月14日 発表 ＋ NVAQC 始動（速報）</h3>
+    <p>世界初の量子プロセッサ向けオープンAIモデル群。<strong style="color:#c8e88a">キャリブレーション自動化</strong>（35Bパラメーター VLM）と<strong style="color:#c8e88a">リアルタイム誤り訂正デコーダー</strong>（3D CNN）を提供。
+    デコード速度 <strong style="color:#fff">2.5×</strong>、精度 <strong style="color:#fff">3×</strong> 向上。Academia Sinica・Fermilab・Harvard・Infleqtion・IQM・LBNL・英NPL等が採用。
+    ボストンに <strong style="color:#fff">NVAQC（NVIDIA Accelerated Quantum Research Center）</strong>新設。発表後 IonQ・D-Wave 株価+50%、Xanadu +250%。</p>
+    <div class="nvidia-pills">
+      <span class="pill pill-green">Ising Calibration (35B VLM)</span>
+      <span class="pill pill-green">Ising Decoding (3D CNN)</span>
+      <span class="pill pill-blue">CUDA-Q 統合</span>
+      <span class="pill pill-blue">NVQLink：17 QPU + 5制御 + 9米国立研</span>
+      <span class="pill pill-pink">NVAQC ボストン研究所 始動</span>
+    </div>
+  </div>
+</div>
+
+<!-- 時代区分バー -->
+<div class="era-bar">
+  <div class="era era-1">
+    <div class="era-label">Phase 1</div>
+    <div class="era-name">NISQ / エラー訂正移行期</div>
+    <div class="era-range">〜2026年</div>
+  </div>
+  <div class="era era-2">
+    <div class="era-label">Phase 2</div>
+    <div class="era-name">アーリー FTQC 期</div>
+    <div class="era-range">2027〜2030年</div>
+  </div>
+  <div class="era era-3">
+    <div class="era-label">Phase 3</div>
+    <div class="era-name">フォールトトレラント実用期</div>
+    <div class="era-range">2030年代〜</div>
+  </div>
+</div>
+
+<!-- タイムライン -->
+<div class="timeline">
+
+  <!-- 2026 -->
+  <div class="tl-year">
+    <div class="tl-year-label">
+      <div class="tl-dot dot-now"></div>
+      <span class="year-text" style="color:#f472b6">2026年</span>
+      <span class="now-marker">NOW</span>
+      <span class="year-sub">— 品質・精度重視へのシフト</span>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-company c-nvidia">NVIDIA</div>
+        <div class="card-title">Ising リリース＋NVAQC 設立（4/14）</div>
+        <div class="card-desc">量子AIモデル群と新研究所をボストンに設立。NPL等の研究機関と連携拡大。発表後の量子株急騰で業界全体に資金流入。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">理研×大阪大</div>
+        <div class="card-title">144量子ビット「叡-Ⅱ」運用開始（3/26）</div>
+        <div class="card-desc">2D配置の超伝導QC。28×28mmチップ。並列運用へ移行し常時クラウド提供を実現。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-fujitsu">富士通×理研</div>
+        <div class="card-title">1,000量子ビット 量子棟 設置目標</div>
+        <div class="card-desc">2025年秋に川崎・量子棟竣工。256→1,000QBへ拡張。IBM Nighthawk（1,386QB）と肩を並べる水準。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM</div>
+        <div class="card-title">量子優位性 ＋ Kookaburra QEC モジュール</div>
+        <div class="card-desc">Nighthawk が年末までに 7,500ゲート / 360量子ビットへ拡張。Kookaburra（LDPC符号 + 論理処理ユニット）で初のQEC対応モジュール。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-google">業界全体</div>
+        <div class="card-title">量子ビット数→品質へのシフト</div>
+        <div class="card-desc">「何量子ビットか」から「どれだけ正確か」へ。QEC実装の精度が競争軸となる。QuEra・Harvard・MITが2:1物理-論理比達成。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ms">東北大学</div>
+        <div class="card-title">量子スピン液体から電気信号抽出（4/23）</div>
+        <div class="card-desc">次世代絶縁性量子材料からの初検出。トポロジカル量子計算の核となる物理現象を制御する技術基盤。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2027-2028 -->
+  <div class="tl-year">
+    <div class="tl-year-label">
+      <div class="tl-dot dot-near"></div>
+      <span class="year-text" style="color:#60a5fa">2027〜2028年</span>
+      <span class="year-sub">— ハイブリッド計算の本格化</span>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-company c-ibm">IBM</div>
+        <div class="card-title">Starling 投入：~200論理QB / ~10,000物理QB</div>
+        <div class="card-desc">Albany NanoTech 300mmウェハーで製造。1億ゲートの量子回路を実行可能なFTQC基幹機。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-nvidia">NVIDIA × 量子HW各社</div>
+        <div class="card-title">NVQLink エコシステム拡大</div>
+        <div class="card-desc">17 QPUベンダー・5 制御ベンダー・9米国立研と接続。QPU-GPU リアルタイム連携が実用域へ。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ms">Microsoft</div>
+        <div class="card-title">Magne 稼働（〜2027年初）</div>
+        <div class="card-desc">中性原子型 ~1,200物理QBから50論理QBを生成。Lyngby（デンマーク）に世界最大の量子ラボ開設（$140M+投資）。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">IonQ</div>
+        <div class="card-title">Q-CTRL Fire Opal 統合（4/24）</div>
+        <div class="card-desc">エラー抑制・問題マッピングの自動化でアルゴリズム成功率を向上。SDT（韓国）とも資源連携協定。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2029 -->
+  <div class="tl-year">
+    <div class="tl-year-label">
+      <div class="tl-dot dot-near"></div>
+      <span class="year-text" style="color:#60a5fa">2029年</span>
+      <span class="year-sub">— IBM FTQC ターゲット</span>
+    </div>
+    <div class="cards">
+      <div class="card card-full">
+        <div class="card-company c-ibm">IBM 最重要マイルストーン</div>
+        <div class="card-title">FTQC（フォールトトレラント量子コンピューター）実現目標</div>
+        <div class="card-desc">新符号化技術により誤り耐性を持つ論理量子ビットでの実用計算を目指す。産業応用（創薬・金融・材料科学）への道筋が見えてくるフェーズ。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2030年代 -->
+  <div class="tl-year">
+    <div class="tl-year-label">
+      <div class="tl-dot dot-mid"></div>
+      <span class="year-text" style="color:#34d399">2030年代前半</span>
+      <span class="year-sub">— 本格的フォールトトレラント期</span>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-company c-google">業界全体</div>
+        <div class="card-title">数万量子ビットFTQC 実装</div>
+        <div class="card-desc">実用的なフォールトトレラント計算が可能になる数万論理量子ビットシステムの登場が期待される。</div>
+      </div>
+      <div class="card">
+        <div class="card-company" style="color:#fbbf24">応用領域</div>
+        <div class="card-title">創薬・材料・暗号の量子優位</div>
+        <div class="card-desc">古典コンピューターでは解けない問題（新材料探索・分子シミュレーション）で量子が経済的価値を生む段階。</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 応用領域セクション -->
+<div class="section-title">応用領域と実用化タイミング</div>
+<div class="app-grid">
+  <div class="app-card">
+    <div class="app-icon">💊</div>
+    <div class="app-name">創薬・分子シミュレーション</div>
+    <span class="app-timing t-mid">2028〜2030年</span>
+    <div class="app-note">タンパク質折り畳み・薬物相互作用の高精度シミュレーション</div>
+  </div>
+  <div class="app-card">
+    <div class="app-icon">💰</div>
+    <div class="app-name">金融最適化</div>
+    <span class="app-timing t-early">2026〜2028年</span>
+    <div class="app-note">ポートフォリオ最適化・リスク計算でNISQ期から先行実用化</div>
+  </div>
+  <div class="app-card">
+    <div class="app-icon">⚡</div>
+    <div class="app-name">材料科学・バッテリー</div>
+    <span class="app-timing t-mid">2029〜2032年</span>
+    <div class="app-note">次世代電池材料・半導体材料の量子シミュレーション</div>
+  </div>
+  <div class="app-card">
+    <div class="app-icon">🔐</div>
+    <div class="app-name">暗号・セキュリティ</div>
+    <span class="app-timing t-late">2030年代〜</span>
+    <div class="app-note">耐量子暗号（PQC）への移行は現在進行中。量子暗号解読は2030年代後半</div>
+  </div>
+  <div class="app-card">
+    <div class="app-icon">🚗</div>
+    <div class="app-name">自動車・半導体設計</div>
+    <span class="app-timing t-early">2025〜2027年</span>
+    <div class="app-note">経路最適化・回路設計支援でパイロット活用が進む</div>
+  </div>
+  <div class="app-card">
+    <div class="app-icon">🌡️</div>
+    <div class="app-name">気候・エネルギー最適化</div>
+    <span class="app-timing t-late">2032年〜</span>
+    <div class="app-note">気候モデリング・エネルギーグリッド最適化への応用</div>
+  </div>
+</div>
+
+<!-- フッター -->
+<div class="footer">
+  <div class="footer-sources">
+    情報ソース：NVIDIA Newsroom / Nikkei xTECH / The Quantum Insider / IBM Quantum Roadmap / Deloitte Japan
+  </div>
+  <div class="footer-date">最終更新：2026年4月26日</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>量子コンピューター 方式別・企業別マイルストーン 2026</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  background: #07090f;
+  color: #d8e4f0;
+  min-height: 100vh;
+  padding: 28px 20px 48px;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.page-header h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  background: linear-gradient(100deg, #67e8f9 0%, #a78bfa 50%, #f9a8d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.page-header p { color: #5a6a84; font-size: 0.82rem; }
+.now-tag {
+  display: inline-block;
+  margin-top: 10px;
+  background: linear-gradient(90deg, #ec4899, #8b5cf6);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 99px;
+  letter-spacing: 0.06em;
+}
+
+/* ===== TAB NAV ===== */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.tab-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #1e2d42;
+  background: #0d1220;
+  color: #6b7a94;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tab-btn:hover { border-color: #3b5070; color: #c0d0e8; }
+.tab-btn.active { border-color: transparent; color: #fff; }
+
+.tab-btn[data-type="sc"].active    { background: linear-gradient(135deg,#1e3a5f,#0d2040); border-color:#3b82f6; }
+.tab-btn[data-type="ion"].active   { background: linear-gradient(135deg,#3a1e50,#200d3a); border-color:#a78bfa; }
+.tab-btn[data-type="topo"].active  { background: linear-gradient(135deg,#1e3a2a,#0d2018); border-color:#34d399; }
+.tab-btn[data-type="na"].active    { background: linear-gradient(135deg,#3a2e1e,#2a1e0d); border-color:#fbbf24; }
+.tab-btn[data-type="photo"].active { background: linear-gradient(135deg,#3a1e2a,#2a0d18); border-color:#f472b6; }
+.tab-btn[data-type="jp"].active      { background: linear-gradient(135deg,#1e2a1e,#0d180d); border-color:#86efac; }
+.tab-btn[data-type="compare"].active { background: linear-gradient(135deg,#1e1e3a,#0d0d20); border-color:#67e8f9; }
+
+/* ===== PANELS ===== */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ===== TYPE HEADER ===== */
+.type-header {
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+.type-icon { font-size: 2.2rem; flex-shrink: 0; }
+.type-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; }
+.type-desc { font-size: 0.78rem; line-height: 1.65; opacity: 0.85; }
+.type-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.meta-chip {
+  font-size: 0.68rem;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+/* color themes */
+.theme-sc    { background: #061428; border-color: #3b82f6; }
+.theme-ion   { background: #10062a; border-color: #a78bfa; }
+.theme-topo  { background: #06140e; border-color: #34d399; }
+.theme-na    { background: #140e06; border-color: #fbbf24; }
+.theme-photo { background: #14060e; border-color: #f472b6; }
+
+.th-sc    { color: #93c5fd; }
+.th-ion   { color: #c4b5fd; }
+.th-topo  { color: #6ee7b7; }
+.th-na    { color: #fde68a; }
+.th-photo { color: #fbcfe8; }
+
+.chip-sc    { color: #93c5fd; border-color: #3b82f6; background: #0a1e3a; }
+.chip-ion   { color: #c4b5fd; border-color: #7c3aed; background: #140a2a; }
+.chip-topo  { color: #6ee7b7; border-color: #059669; background: #0a1e14; }
+.chip-na    { color: #fde68a; border-color: #d97706; background: #1a140a; }
+.chip-photo { color: #fbcfe8; border-color: #db2777; background: #1a0a14; }
+
+/* ===== COMPANY GRID ===== */
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.company-card {
+  background: #0d1220;
+  border: 1px solid #1a2538;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.company-card:hover { transform: translateY(-2px); }
+.company-card.featured { border-color: #2a3a55; }
+
+.cc-header {
+  padding: 14px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #1a2538;
+}
+.cc-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.cc-name { font-size: 0.95rem; font-weight: 700; }
+.cc-country { font-size: 0.68rem; color: #5a6a84; margin-top: 1px; }
+
+.cc-body { padding: 14px 16px; }
+
+/* ===== MILESTONE TIMELINE ===== */
+.milestone-list { display: flex; flex-direction: column; gap: 0; }
+.ms-item {
+  display: flex;
+  gap: 10px;
+  position: relative;
+  padding-bottom: 14px;
+}
+.ms-item:last-child { padding-bottom: 0; }
+.ms-item:last-child .ms-line { display: none; }
+
+.ms-year-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 42px;
+}
+.ms-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: #07090f;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.ms-line {
+  width: 2px;
+  flex: 1;
+  margin-top: 4px;
+  min-height: 20px;
+}
+.ms-year-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+.ms-content { flex: 1; }
+.ms-title { font-size: 0.8rem; font-weight: 600; line-height: 1.4; margin-bottom: 3px; }
+.ms-detail { font-size: 0.7rem; color: #6b7a94; line-height: 1.5; }
+
+.ms-now .ms-dot { box-shadow: 0 0 8px; }
+.ms-badge {
+  font-size: 0.6rem;
+  padding: 1px 7px;
+  border-radius: 99px;
+  font-weight: 700;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* SC colors */
+.sc .ms-dot    { border-color: #3b82f6; }
+.sc .ms-line   { background: #1e3a5f; }
+.sc .ms-now .ms-dot { color: #3b82f6; }
+.sc .ms-year-label { color: #60a5fa; }
+.sc .ms-badge-hot { background: #1e3a5f; color: #93c5fd; border: 1px solid #3b82f6; }
+
+/* ION colors */
+.ion .ms-dot    { border-color: #7c3aed; }
+.ion .ms-line   { background: #2a1560; }
+.ion .ms-year-label { color: #a78bfa; }
+.ion .ms-badge-hot { background: #1e0a40; color: #c4b5fd; border: 1px solid #7c3aed; }
+
+/* TOPO colors */
+.topo .ms-dot    { border-color: #059669; }
+.topo .ms-line   { background: #0a2818; }
+.topo .ms-year-label { color: #34d399; }
+.topo .ms-badge-hot { background: #0a2010; color: #6ee7b7; border: 1px solid #059669; }
+
+/* NA colors */
+.na .ms-dot    { border-color: #d97706; }
+.na .ms-line   { background: #2a1e08; }
+.na .ms-year-label { color: #fbbf24; }
+.na .ms-badge-hot { background: #201408; color: #fde68a; border: 1px solid #d97706; }
+
+/* PHOTO colors */
+.photo .ms-dot    { border-color: #db2777; }
+.photo .ms-line   { background: #2a0818; }
+.photo .ms-year-label { color: #f472b6; }
+.photo .ms-badge-hot { background: #200810; color: #fbcfe8; border: 1px solid #db2777; }
+
+.cc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  margin-top: 12px;
+}
+.status-active { background: #0a2010; color: #34d399; border: 1px solid #059669; }
+.status-lead   { background: #0a1e3a; color: #93c5fd; border: 1px solid #3b82f6; }
+.status-watch  { background: #1a1008; color: #fde68a; border: 1px solid #d97706; }
+
+/* ===== COMPARE TABLE ===== */
+.compare-section { }
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.77rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.compare-table th {
+  background: #0d1220;
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #5a6a84;
+  border-bottom: 1px solid #1a2538;
+}
+.compare-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #111828;
+  vertical-align: top;
+  line-height: 1.5;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:hover td { background: #0d1525; }
+.type-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.readiness-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bar-bg {
+  flex: 1;
+  height: 6px;
+  background: #1a2538;
+  border-radius: 3px;
+  overflow: hidden;
+  max-width: 100px;
+}
+.bar-fill { height: 100%; border-radius: 3px; }
+.bar-label { font-size: 0.68rem; color: #6b7a94; white-space: nowrap; }
+
+.section-divider {
+  text-align: center;
+  color: #2a3a55;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 28px 0 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-divider::before, .section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #1a2538;
+}
+
+/* ===== FOOTER ===== */
+.page-footer {
+  margin-top: 40px;
+  padding-top: 18px;
+  border-top: 1px solid #1a2538;
+  font-size: 0.65rem;
+  color: #3a4a60;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>量子コンピューター 方式別・企業別マイルストーン</h1>
+  <p>5つの実装方式と主要メーカーの開発ロードマップ比較</p>
+  <div class="now-tag">📍 現在地：2026年4月</div>
+</div>
+
+<!-- タブナビ -->
+<div class="tab-nav">
+  <button class="tab-btn active" data-type="sc"    onclick="showTab('sc')">⚡ 超伝導型</button>
+  <button class="tab-btn"        data-type="ion"   onclick="showTab('ion')">🔬 イオントラップ型</button>
+  <button class="tab-btn"        data-type="topo"  onclick="showTab('topo')">🔷 トポロジカル型</button>
+  <button class="tab-btn"        data-type="na"    onclick="showTab('na')">⚛️ 中性原子型</button>
+  <button class="tab-btn"        data-type="photo" onclick="showTab('photo')">💡 光量子型</button>
+  <button class="tab-btn"        data-type="jp"      onclick="showTab('jp')">🇯🇵 国内エコシステム</button>
+  <button class="tab-btn"        data-type="compare" onclick="showTab('compare')">📊 方式比較</button>
+</div>
+
+<!-- ===================== 超伝導型 ===================== -->
+<div class="panel active" id="panel-sc">
+  <div class="type-header theme-sc">
+    <div class="type-icon">⚡</div>
+    <div>
+      <div class="type-title th-sc">超伝導型（Superconducting）</div>
+      <div class="type-desc">マイクロ波パルスで制御するジョセフソン接合を利用。現在最多の量子ビット数を実現しており、クラウド提供でも最も普及。極低温（〜15mK）が必要。IBM・Google・富士通が牽引し、エラー訂正の精度向上が2026年の競争軸。</div>
+      <div class="type-meta">
+        <span class="meta-chip chip-sc">動作温度：〜15mK</span>
+        <span class="meta-chip chip-sc">最多量子ビット数</span>
+        <span class="meta-chip chip-sc">クラウド提供：最普及</span>
+        <span class="meta-chip chip-sc">主要課題：デコヒーレンス</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="company-grid">
+
+    <!-- IBM -->
+    <div class="company-card featured sc">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#1a3060;color:#93c5fd;">IBM</div>
+        <div>
+          <div class="cc-name">IBM Quantum</div>
+          <div class="cc-country">🇺🇸 アメリカ — 最先端FTQC目標</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list sc">
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">量子優位性の達成目標 ＋ Nighthawk 拡張 <span class="ms-badge ms-badge-hot">NOW</span></div>
+              <div class="ms-detail">Nighthawk が年末までに 7,500ゲート / 360量子ビットへ拡張。検証された量子優位性のコミュニティ確認をターゲット。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Kookaburra：初のQEC対応モジュール <span class="ms-badge ms-badge-hot">予定</span></div>
+              <div class="ms-detail">LDPC符号で論理量子ビットを格納し、論理処理ユニット（LPU）で操作する初のモジュール。Albany NanoTech 300mmウェハー製造へ移行。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2028-29</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">IBM Quantum Starling — 大規模FTQC 🎯</div>
+              <div class="ms-detail">~200論理量子ビット（QECで符号化）。物理~10,000量子ビット相当。1億ゲート量子回路の実行を可能とするFTQC基幹機。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2030+</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Blue Jay：1万量子ビット超システム</div>
+              <div class="ms-detail">大規模な実用量子計算の本格展開。創薬・金融・材料の産業応用フェーズへ。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-lead">🏆 FTQC ロードマップ最前線</div>
+      </div>
+    </div>
+
+    <!-- Google -->
+    <div class="company-card sc">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#1e1010;color:#f87171;">G</div>
+        <div>
+          <div class="cc-name">Google Quantum AI</div>
+          <div class="cc-country">🇺🇸 アメリカ — 量子優位性実証</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list sc">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2024</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Willow チップ発表</div>
+              <div class="ms-detail">量子ビット増加とともにエラーが指数的に減少する画期的成果。古典コンピューターで10兆年かかる計算を5分で実行。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025-26</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">検証可能な量子優位性 <span class="ms-badge ms-badge-hot">達成</span></div>
+              <div class="ms-detail">Quantum Echoes 実行。QECなしでノイズ環境から価値を引き出す「NISQ優位性」を実証。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2028+</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">商用量子コンピューティングサービス</div>
+              <div class="ms-detail">Google Cloud 統合での産業向け量子サービス本格展開。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-lead">⚡ 量子優位性の実証リード</div>
+      </div>
+    </div>
+
+    <!-- 富士通 / 理研 -->
+    <div class="company-card sc">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#201800;color:#fbbf24;">富士通</div>
+        <div>
+          <div class="cc-name">富士通 × 理化学研究所</div>
+          <div class="cc-country">🇯🇵 日本 — 国産量子コンピューター</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list sc">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025春</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">256量子ビット機 開発完了 ✅</div>
+              <div class="ms-detail">理研と共同。世界最大級の超伝導量子コンピューター。Fujitsu Hybrid Quantum Computing Platform で 2025年Q1から提供開始。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025秋</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">川崎・量子棟 竣工 ✅</div>
+              <div class="ms-detail">Fujitsu Technology Park（神奈川県川崎市中原区）に量子棟が竣工。1,000量子ビット機の設置場所。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">FY2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">1,000量子ビット 設置・公開 <span class="ms-badge ms-badge-hot">NOW</span></div>
+              <div class="ms-detail">256Qから拡張。IBM Nighthawk（1,386QB目標）と肩を並べる水準。国産として国際競争力のある水準を目指す。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2030</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">1万量子ビット超 研究開発開始</div>
+              <div class="ms-detail">政府400億円投資を背景に、材料・創薬・金融への応用研究を本格化。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🇯🇵 国産最先端</div>
+      </div>
+    </div>
+
+    <!-- 理研 × 大阪大 「叡-Ⅱ」 -->
+    <div class="company-card sc">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#1a3060;color:#93c5fd;">叡-Ⅱ</div>
+        <div>
+          <div class="cc-name">理研 × 大阪大学（叡-Ⅱ）</div>
+          <div class="cc-country">🇯🇵 日本 — 144量子ビット 国産機</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list sc">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2024</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">「叡」初号機 公開（64量子ビット）</div>
+              <div class="ms-detail">大阪大学QIQB＋理研 共同研究。純国産量子コンピューターの先行モデル。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2026.03</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">「叡-Ⅱ」144量子ビット 運用開始 <span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">28×28mmチップ。2D配置で量子ビット2倍以上に拡張。共振周波数を低減し量子ビット寿命を延長、誤り率を低減。並列運用で常時クラウド提供。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🇯🇵 純国産144QB稼働中</div>
+      </div>
+    </div>
+
+    <!-- Rigetti -->
+    <div class="company-card sc">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#1a1a2a;color:#a78bfa;">RIG</div>
+        <div>
+          <div class="cc-name">Rigetti Computing</div>
+          <div class="cc-country">🇺🇸 アメリカ — ハイブリッド特化</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list sc">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">84量子ビット Ankaa-3 システム</div>
+              <div class="ms-detail">高連結性・高精度を重視した設計。クラウド提供でのハイブリッド計算に注力。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">QCS プラットフォーム拡張 <span class="ms-badge ms-badge-hot">進行中</span></div>
+              <div class="ms-detail">量子-古典ハイブリッドクラウドサービス。NVIDIA NVQLink パートナーとして統合。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-watch">📡 クラウドプロバイダー</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== イオントラップ型 ===================== -->
+<div class="panel" id="panel-ion">
+  <div class="type-header theme-ion">
+    <div class="type-icon">🔬</div>
+    <div>
+      <div class="type-title th-ion">イオントラップ型（Trapped Ion）</div>
+      <div class="type-desc">電磁場で浮かせたイオンをレーザーで制御。全量子ビット間の接続性（all-to-all）が特徴で、精度（フィデリティ）では超伝導型を凌駕。動作速度は遅いが、誤り率の低さと安定性に優れ、論理量子ビット構築に有利。</div>
+      <div class="type-meta">
+        <span class="meta-chip chip-ion">全量子ビット接続</span>
+        <span class="meta-chip chip-ion">最高水準のフィデリティ</span>
+        <span class="meta-chip chip-ion">室温近傍で動作可能</span>
+        <span class="meta-chip chip-ion">主要課題：スケールアップ速度</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="company-grid">
+
+    <!-- IonQ -->
+    <div class="company-card featured ion">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#1a0a38;color:#c4b5fd;">IonQ</div>
+        <div>
+          <div class="cc-name">IonQ</div>
+          <div class="cc-country">🇺🇸 アメリカ — イオントラップ上場企業</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list ion">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Tempo 開発者システム〜100量子ビット</div>
+              <div class="ms-detail">Oxford Ionics買収で99.99%以上の2量子ビットゲート精度を達成。マイクロ波ゲート・並列演算実装。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026.04</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Q-CTRL Fire Opal 統合（4/24）<span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">エラー抑制と問題マッピングの自動化を IonQ Quantum Cloud に統合。アルゴリズム成功率を大幅に向上、量子の専門知識なしで最適化問題を実行可能に。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026.04</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">QLDPC「Walking Cat」アーキテクチャ提案（4/22）<span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">トラップドイオン向けに QLDPC符号 を活用したFTQC新ブループリント。SDT（韓国）との資源連携協定（4/18）でハイブリッドクラウド連携も加速。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">12論理量子ビット達成目標</div>
+              <div class="ms-detail">物理フィデリティ99.99%。論理エラー率 &lt;1.00E-7。Lightsynq買収で光子インターコネクト50×向上。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2027</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">1万量子ビット単一チップ目標</div>
+              <div class="ms-detail">フォトニクスインターコネクトによるクラスター型量子計算が商用域へ。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2028</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">CRQC（暗号解読可能量子コンピューター）目標</div>
+              <div class="ms-detail">暗号学的に意味のある量子計算の実現。RSA等の公開鍵暗号への脅威として注目。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-lead">🏆 フィデリティ世界最高水準</div>
+      </div>
+    </div>
+
+    <!-- Quantinuum -->
+    <div class="company-card ion">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#100820;color:#e9d5ff;">QTM</div>
+        <div>
+          <div class="cc-name">Quantinuum（Honeywell）</div>
+          <div class="cc-country">🇺🇸🇬🇧 米英合弁 — 精度特化戦略</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list ion">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2021</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">完全誤り訂正論理量子ビット実証 ✅</div>
+              <div class="ms-detail">Steane符号による論理量子ビットを複数QECサイクルにわたって維持。業界初。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025-26</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">小規模FTQC機（数十論理ビット）実証 <span class="ms-badge ms-badge-hot">進行中</span></div>
+              <div class="ms-detail">量子ビット数より精度優先戦略。誤りなしで動く数個の論理量子ビット実証を2020年代内に完成予定。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2029+</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">フォトニクスリンクによるスケールアップ</div>
+              <div class="ms-detail">光子インターコネクトで複数モジュールを連結した大規模フォールトトレラント機。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🎯 QEC 先行実装リーダー</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== トポロジカル型 ===================== -->
+<div class="panel" id="panel-topo">
+  <div class="type-header theme-topo">
+    <div class="type-icon">🔷</div>
+    <div>
+      <div class="type-title th-topo">トポロジカル型（Topological）</div>
+      <div class="type-desc">マヨラナ粒子を用いたトポロジカル量子ビットは、物理的に保護された情報格納により本質的に誤り率が低い。現在はMicrosoftのみが本格開発中。実現すれば「1チップに100万量子ビット」が可能とされ、究極のスケーラビリティを持つ次世代方式。</div>
+      <div class="type-meta">
+        <span class="meta-chip chip-topo">本質的なエラー保護</span>
+        <span class="meta-chip chip-topo">最大スケーラビリティ（理論値）</span>
+        <span class="meta-chip chip-topo">開発者：実質Microsoft のみ</span>
+        <span class="meta-chip chip-topo">主要課題：マヨラナ粒子の実用化</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="company-grid">
+
+    <!-- Microsoft -->
+    <div class="company-card featured topo">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#0a1e0a;color:#6ee7b7;">MSFT</div>
+        <div>
+          <div class="cc-name">Microsoft Azure Quantum</div>
+          <div class="cc-country">🇺🇸 アメリカ — 独自路線・超長期戦略</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list topo">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025.02</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Majorana 1 チップ 世界初発表 ✅</div>
+              <div class="ms-detail">トポロジカルコアを搭載した世界初のQPU。InAs/Al接合のトポロジカル超伝導ナノワイヤで実現。理論上1チップに100万量子ビット実装可能。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025秋</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Magne 建設開始（Atom Computing と共同）</div>
+              <div class="ms-detail">論理量子ビット稼働の世界初マシン。MicrosoftのQEC + Atom Computingの中性原子HWを組合せ。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026春</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Lyngby（デンマーク）量子ラボ 開設 <span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">Microsoft の世界最大量子サイト。$140M+を投資。トポロジカル量子ビットの開発加速拠点として機能。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026末-27初</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Magne 稼働予定 <span class="ms-badge ms-badge-hot">近日</span></div>
+              <div class="ms-detail">Resilientフェーズ：50論理量子ビット（~1,200物理QB）。Atom Computing中性原子HW × Microsoft QECで初の論理量子ビット稼働マシン。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2030s</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Scaleフェーズ：ユーティリティ量子コンピューティング</div>
+              <div class="ms-detail">Majorana ベースで100万量子ビット級の真のFTQC。超長期だが実現すれば革命的。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🔷 唯一のトポロジカル量子ビット開発</div>
+      </div>
+    </div>
+
+    <!-- 東北大学（量子スピン液体研究） -->
+    <div class="company-card topo">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#0a1e0a;color:#6ee7b7;">TOHOKU</div>
+        <div>
+          <div class="cc-name">東北大学（量子材料研究）</div>
+          <div class="cc-country">🇯🇵 日本 — トポロジカル材料の基礎研究</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list topo">
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2026.04</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">量子スピン液体から電気信号抽出に成功（4/23）<span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">次世代絶縁性量子材料からの電気信号取得に世界初成功。トポロジカル量子コンピューターの核心物理現象を制御する基盤技術として注目。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-watch">🔬 国産トポロジカル研究</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== 中性原子型 ===================== -->
+<div class="panel" id="panel-na">
+  <div class="type-header theme-na">
+    <div class="type-icon">⚛️</div>
+    <div>
+      <div class="type-title th-na">中性原子型（Neutral Atom）</div>
+      <div class="type-desc">光ピンセットで捕捉したルビジウム・セシウム等の中性原子を量子ビットとして使用。原子を2D/3D配列し、リュードベリ相互作用でゲートを実行。高い並列性とプログラマブルな接続性が特徴。Microsoft・QuEra・Atom Computingが注目。</div>
+      <div class="type-meta">
+        <span class="meta-chip chip-na">2D/3D 自由配置可能</span>
+        <span class="meta-chip chip-na">高い並列性</span>
+        <span class="meta-chip chip-na">室温動作（制御部は除く）</span>
+        <span class="meta-chip chip-na">主要課題：ゲート速度・読み出し精度</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="company-grid">
+
+    <!-- Atom Computing / Microsoft -->
+    <div class="company-card featured na">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#201400;color:#fde68a;">ATOM</div>
+        <div>
+          <div class="cc-name">Atom Computing × Microsoft</div>
+          <div class="cc-country">🇺🇸 アメリカ — 論理量子ビット先行実証</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list na">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2023</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">1,180中性原子システム実証 ✅</div>
+              <div class="ms-detail">世界最大規模の中性原子量子プロセッサー。ストロンチウム原子を使用した高フィデリティシステム。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2024</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">24論理量子ビットのエンタングル記録 ✅</div>
+              <div class="ms-detail">112原子に28論理量子ビットをエンコード。24論理ビット間のエンタングルメント生成（世界記録）。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2026末-27初</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">「Magne」— 世界初・論理量子ビット稼働マシン <span class="ms-badge ms-badge-hot">建設中</span></div>
+              <div class="ms-detail">50論理量子ビット（~1,200物理QB）。Microsoft QECソフト × Atom Computing 中性原子 HW の組合せ。最強の論理QB数を誇る次世代マシン。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🌟 論理量子ビット記録保持</div>
+      </div>
+    </div>
+
+    <!-- QuEra -->
+    <div class="company-card na">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#1a1000;color:#fcd34d;">QuEra</div>
+        <div>
+          <div class="cc-name">QuEra Computing</div>
+          <div class="cc-country">🇺🇸 アメリカ（Harvard発） — アナログ＋デジタル</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list na">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2024</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Aquila 2 — 256原子量子プロセッサー</div>
+              <div class="ms-detail">Harvard・MIT連携。アナログ量子シミュレーターとして最適化・物理シミュレーションに特化。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026.04</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">2:1 物理-論理QB比 達成（QuEra×Harvard×MIT）<span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">QLDPC符号と再構成可能中性原子HWで、論理QB1個あたり物理QB約2個での誤り訂正を実現。従来の数百〜数千分の1の物理QB数で論理QBを符号化。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026.04</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">論理量子回路シミュレーション OSS パッケージ公開（4/3）<span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">大規模な論理量子回路をシミュレートするオープンソースパッケージを公開。研究者向けFTQCシミュレーション基盤の整備が前進。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">100論理量子ビット / 10,000物理QB 目標</div>
+              <div class="ms-detail">第3世代QECモデル。誤り訂正を実装した本格的な大規模量子計算へのロードマップ。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🔬 Harvard 発スピンオフ</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== 光量子型 ===================== -->
+<div class="panel" id="panel-photo">
+  <div class="type-header theme-photo">
+    <div class="type-icon">💡</div>
+    <div>
+      <div class="type-title th-photo">光量子型（Photonic）</div>
+      <div class="type-desc">光子を量子ビットとして使用。室温動作可能で通信インフラとの親和性が高く、量子ネットワーク構築に有利。ただし光子同士の相互作用が弱くゲート実装が難しく、現在は測定ベース量子計算（MBQC）方式で克服を目指す。</div>
+      <div class="type-meta">
+        <span class="meta-chip chip-photo">室温動作可能</span>
+        <span class="meta-chip chip-photo">量子通信・量子ネットワーク親和</span>
+        <span class="meta-chip chip-photo">高速処理ポテンシャル</span>
+        <span class="meta-chip chip-photo">主要課題：光子損失・ゲート実装</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="company-grid">
+
+    <!-- PsiQuantum -->
+    <div class="company-card featured photo">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#1a0818;color:#fbcfe8;">PSI</div>
+        <div>
+          <div class="cc-name">PsiQuantum</div>
+          <div class="cc-country">🇺🇸🇦🇺 米豪 — 半導体プロセス量産戦略</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list photo">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025-26</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">GlobalFoundries と大規模光チップ製造</div>
+              <div class="ms-detail">シリコンフォトニクスプロセスで量子チップを量産。豪政府・米国防総省から大型投資を獲得。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">PsiQuantum × 東大 × 三菱ケミカル NEDO 育成プログラム <span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">日本のFTQC人材育成プログラムを開始。20社80名以上の専門人材が PsiQuantum「Construct」プラットフォームへアクセス可能に。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2027-29</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">100万物理量子ビット FTQC 目標</div>
+              <div class="ms-detail">測定ベース量子計算（MBQC）で誤り訂正。半導体ファブ活用で大規模製造が強み。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-watch">💰 豪政府・国防省 大型投資</div>
+      </div>
+    </div>
+
+    <!-- NTT -->
+    <div class="company-card photo">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#0e1020;color:#7dd3fc;">NTT</div>
+        <div>
+          <div class="cc-name">NTT（日本電信電話）</div>
+          <div class="cc-country">🇯🇵 日本 — 光量子コンピューター独自路線</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list photo">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2015〜</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">光量子コンピューター研究開始</div>
+              <div class="ms-detail">光通信技術を活用した独自の光量子計算アーキテクチャを長期研究。NTT研究所が主体。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2024.11</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">汎用型光量子計算プラットフォーム 世界初始動 ✅</div>
+              <div class="ms-detail">室温動作可能な光量子計算プラットフォームを世界で初めて公開。光通信インフラとの親和性を活かした独自戦略。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025.01</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">量子エンタングルメント生成：従来比1,000倍高速化 ✅</div>
+              <div class="ms-detail">世界初の成果。光量子ビット間のエンタングルメント生成速度を1,000倍以上改善。実用化加速の技術基盤。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025.03</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">「ロードストア型」量子コンピューターアーキテクチャ提案</div>
+              <div class="ms-detail">東京大学・九州大学・理研と共同。メモリとプロセッサを分離した新設計でメモリ効率と移植性を大幅改善。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2025.11</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">OptQC との連携協定 締結 ✅</div>
+              <div class="ms-detail">2030年100万量子ビット光量子コンピューター実現に向けた具体的パートナー連携。スケーラブルで信頼性の高い実用化を目指す。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026.01</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">「NTT IOWN Technology Report」公開 ✅</div>
+              <div class="ms-detail">"Quantum Leap: Charting the Optical-Quantum Trajectory"。光量子計算ロードマップの戦略的位置づけを公式化。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">FY2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">PEC-2「光エンジン」商用提供 / IOWN 2.0 始動 <span class="ms-badge ms-badge-hot">NOW</span></div>
+              <div class="ms-detail">小型光電融合デバイス PEC-2 を商用化。IOWN 2.0実現の中核デバイス。AI電力危機への光量子計算からのアプローチ。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2030</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">100万量子ビット規模 光量子コンピューター目標</div>
+              <div class="ms-detail">スタートアップ OptQC と連携。NTT R&amp;D Forum 2025 で発表。IOWN基盤と統合した次世代計算インフラ構想。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🇯🇵 光量子コンピューター 国産独自路線</div>
+      </div>
+    </div>
+
+    <!-- Xanadu -->
+    <div class="company-card photo">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#18080e;color:#f9a8d4;">XAN</div>
+        <div>
+          <div class="cc-name">Xanadu Quantum Technologies</div>
+          <div class="cc-country">🇨🇦 カナダ — Aurora / PennyLane / XNDU</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list photo">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2022</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Borealis — 量子計算優位性実証 ✅</div>
+              <div class="ms-detail">ガウシアン・ボゾンサンプリング（GBS）で古典コンピューター比9,000倍以上高速化を実証。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026.03</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Nasdaq + TSX 上場（XNDU）— $302M 調達 <span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">3/27 公開上場。光量子コンピューティング最大級のIPO。NVIDIA Ising発表後、株価は最高 $32.67（+250%）まで急騰。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-line"></div>
+              <div class="ms-year-label">2026.04</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Aurora — モジュラー光量子コンピューター発表 <span class="ms-badge ms-badge-hot">NEW</span></div>
+              <div class="ms-detail">世界初のモジュラー型ネットワーク化光量子コンピューター。リアルタイム誤り訂正デコーディング付き12論理GKP量子ビット実証。FTQC光量子計算の重要な前進。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot"></div>
+              <div class="ms-year-label">2026</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">DARPA QBI ステージB ＋ カナダ Quantum Champions</div>
+              <div class="ms-detail">DARPA Quantum Benchmarking Initiative ステージB進出（最大$15M）。カナダ Quantum Champions プログラム（最大CAD$23M）も獲得。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status status-active">🐧 オープンソース QML + 光FTQC</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== 国内エコシステム ===================== -->
+<div class="panel" id="panel-jp">
+  <div class="type-header" style="background:linear-gradient(135deg,#0a1a0a,#0f200f);border:1px solid #166534;">
+    <div class="type-icon">🇯🇵</div>
+    <div>
+      <div class="type-title" style="color:#86efac;">日本の量子コンピューター エコシステム</div>
+      <div class="type-desc">政府400億円投資を背景に、NTTデータ（SIer・コンサル）と産業技術総合研究所（産総研/AIST）が国内産業応用と国際連携のハブとして機能。複数の量子ビット方式をまたいで実用化を支援している。</div>
+      <div class="type-meta">
+        <span class="meta-chip" style="color:#86efac;border-color:#166534;background:#0a2010;">政府量子戦略：400億円</span>
+        <span class="meta-chip" style="color:#86efac;border-color:#166534;background:#0a2010;">方式横断型エコシステム</span>
+        <span class="meta-chip" style="color:#86efac;border-color:#166534;background:#0a2010;">産学官連携</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="company-grid">
+
+    <!-- NTTデータ -->
+    <div class="company-card featured" style="border-color:#1e3a2a;">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#0a1e14;color:#4ade80;">NTTD</div>
+        <div>
+          <div class="cc-name">NTTデータ</div>
+          <div class="cc-country">🇯🇵 日本 — 量子SI・コンサルティング・欧州展開</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list" style="--dot-color:#16a34a;--line-color:#0a2e14;">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#16a34a;"></div>
+              <div class="ms-line" style="background:#0a2e14;"></div>
+              <div class="ms-year-label" style="color:#4ade80;">〜2023</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">量子コンピューター・イジングマシン 技術検証サービス開始</div>
+              <div class="ms-detail">超伝導型・イジングマシンの企業向け技術検証・導入コンサルティングを提供。高い運用・計算専門性を確立。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#16a34a;"></div>
+              <div class="ms-line" style="background:#0a2e14;"></div>
+              <div class="ms-year-label" style="color:#4ade80;">2023</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">欧州イノベーションセンター：量子ビジネス実用化研究</div>
+              <div class="ms-detail">欧州拠点でIBM Quantum・D-Wave・IonQを活用した製造・物流・金融領域のユースケース実証。研究→ビジネス化の橋渡し役。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#16a34a;"></div>
+              <div class="ms-line" style="background:#0a2e14;"></div>
+              <div class="ms-year-label" style="color:#4ade80;">2024</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">耐量子計算機暗号（PQC）対応 金融機関向け支援</div>
+              <div class="ms-detail">2030年代の量子脅威に備えたPQC移行コンサルティングを本格化。金融・インフラのセキュリティ刷新を支援。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#16a34a;box-shadow:0 0 8px #16a34a;"></div>
+              <div class="ms-line" style="background:#0a2e14;"></div>
+              <div class="ms-year-label" style="color:#4ade80;">2025-26</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">量子-古典ハイブリッドシステム実装支援 <span class="ms-badge" style="background:#0a2010;color:#4ade80;border:1px solid #16a34a;">NOW</span></div>
+              <div class="ms-detail">NVIDIA CUDA-Q 活用の量子ハイブリッドワークロードを大手企業に実装。最適化・創薬・材料探索のPoC拡大。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#16a34a;"></div>
+              <div class="ms-year-label" style="color:#4ade80;">2028+</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">FTQC 時代向け量子システムインテグレーション</div>
+              <div class="ms-detail">IBMのFTQC実現（2029目標）に合わせた企業向け量子利活用基盤の構築・運用支援の本格展開。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status" style="background:#0a2010;color:#4ade80;border:1px solid #16a34a;">🏢 国内最大量子SIer</div>
+      </div>
+    </div>
+
+    <!-- 産総研 (AIST) -->
+    <div class="company-card featured" style="border-color:#2a3a1a;">
+      <div class="cc-header">
+        <div class="cc-logo" style="background:#141e08;color:#bef264;">AIST</div>
+        <div>
+          <div class="cc-name">産業技術総合研究所（産総研 / AIST）</div>
+          <div class="cc-country">🇯🇵 日本 — 量子エコシステムのハブ機関</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="milestone-list" style="--dot-color:#65a30d;--line-color:#1a2e08;">
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;"></div>
+              <div class="ms-line" style="background:#1a2e08;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2023.07</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">G-QuAT 設立 —「量子・AI融合ビジネス開発グローバル研究センター」</div>
+              <div class="ms-detail">政府「量子未来産業創出戦略」に基づき設立。大手20社以上が参画するコンソーシアム型研究体制。量子技術の社会実装を加速。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;"></div>
+              <div class="ms-line" style="background:#1a2e08;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2024.03</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">超伝導量子コンピューター超高性能計算基盤：内閣総理大臣賞 受賞 🏆</div>
+              <div class="ms-detail">第53回 日本産業技術大賞 最高位を受賞。超伝導量子コンピューターを活用した超高性能計算プラットフォームが国家的評価を獲得。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;"></div>
+              <div class="ms-line" style="background:#1a2e08;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2025.01</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">量子コンピューター大規模化向け材料評価技術 発表</div>
+              <div class="ms-detail">量子ビットの品質を左右する材料の評価手法を開発。サプライチェーン標準化への貢献。国産量子ハードの実力向上を支援。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;"></div>
+              <div class="ms-line" style="background:#1a2e08;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2025.02</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">Intel と MOU 締結：シリコン量子コンピューター産業化連携</div>
+              <div class="ms-detail">スピン量子ビット（Si/SiGe）の産業化に向けたIntelとの連携強化。シリコン CMOS プロセスの活用で量産化を視野。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;"></div>
+              <div class="ms-line" style="background:#1a2e08;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2025</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">QuEra 中性原子型 量子コンピューター オンプレミス導入 ✅</div>
+              <div class="ms-detail">米 QuEra の中性原子量子プロセッサー（37論理量子ビット / 260物理QB）を国内初のオンプレミス設置。方式多様化による研究基盤の拡充。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;"></div>
+              <div class="ms-line" style="background:#1a2e08;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2025.09</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">大規模量子コンピューターシステム サプライチェーン技術報告書 公開</div>
+              <div class="ms-detail">国産量子コンピューター実用化に必要なサプライチェーン全体の技術課題を整理。材料・部品・製造・検査の標準化を推進。</div>
+            </div>
+          </div>
+          <div class="ms-item ms-now">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;box-shadow:0 0 8px #65a30d;"></div>
+              <div class="ms-line" style="background:#1a2e08;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2026.03</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">光量子顕微鏡テストベッド 開設 <span class="ms-badge" style="background:#0a2010;color:#a3e635;border:1px solid #65a30d;">NEW</span></div>
+              <div class="ms-detail">G-QuAT に光量子センシング・顕微技術のテストベッドを開設。光量子計算と量子センシングの融合領域での産学連携を加速。</div>
+            </div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-year-col">
+              <div class="ms-dot" style="border-color:#65a30d;"></div>
+              <div class="ms-year-label" style="color:#a3e635;">2026+</div>
+            </div>
+            <div class="ms-content">
+              <div class="ms-title">G-QuAT：量子×AI融合ユースケース 産業実装フェーズ</div>
+              <div class="ms-detail">大手20社以上との共同研究で得たユースケースを実産業に実装。製造・エネルギー・創薬分野での量子活用モデル確立。</div>
+            </div>
+          </div>
+        </div>
+        <div class="cc-status" style="background:#0e1e06;color:#a3e635;border:1px solid #65a30d;">🏛️ 国内量子エコシステムのハブ機関</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 国内連携マップ -->
+  <div class="section-divider">日本の量子エコシステム 連携マップ</div>
+  <div style="background:#0a1008;border:1px solid #166534;border-radius:12px;padding:20px 22px;margin-bottom:16px;">
+    <div style="color:#4ade80;font-weight:700;margin-bottom:12px;font-size:0.88rem;">🗾 国内主要プレイヤーの役割分担</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+      <div style="background:#0f1e0a;border:1px solid #1a3a14;border-radius:8px;padding:12px;">
+        <div style="color:#86efac;font-weight:700;font-size:0.78rem;margin-bottom:6px;">🔬 ハードウェア開発</div>
+        <div style="color:#6b7a94;font-size:0.72rem;line-height:1.6;">富士通×理研（超伝導）<br>NTT（光量子）<br>産総研（超伝導・中性原子・Si）</div>
+      </div>
+      <div style="background:#0f1e0a;border:1px solid #1a3a14;border-radius:8px;padding:12px;">
+        <div style="color:#86efac;font-weight:700;font-size:0.78rem;margin-bottom:6px;">🏢 産業応用・SI</div>
+        <div style="color:#6b7a94;font-size:0.72rem;line-height:1.6;">NTTデータ（コンサル・実装）<br>富士通（クラウドサービス）<br>日立・NEC（最適化活用）</div>
+      </div>
+      <div style="background:#0f1e0a;border:1px solid #1a3a14;border-radius:8px;padding:12px;">
+        <div style="color:#86efac;font-weight:700;font-size:0.78rem;margin-bottom:6px;">🌐 国際連携ハブ</div>
+        <div style="color:#6b7a94;font-size:0.72rem;line-height:1.6;">産総研G-QuAT（20社以上）<br>産総研×Intel（Si量子ビット）<br>産総研×QuEra（中性原子）</div>
+      </div>
+      <div style="background:#0f1e0a;border:1px solid #1a3a14;border-radius:8px;padding:12px;">
+        <div style="color:#86efac;font-weight:700;font-size:0.78rem;margin-bottom:6px;">🔐 セキュリティ対応</div>
+        <div style="color:#6b7a94;font-size:0.72rem;line-height:1.6;">NTTデータ（PQC移行支援）<br>産総研（暗号標準化研究）<br>政府（NISC 耐量子暗号推進）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 方式比較 ===================== -->
+<div class="panel" id="panel-compare">
+  <div class="section-divider">方式別 比較マトリクス</div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>方式</th>
+        <th>主要企業</th>
+        <th>フィデリティ</th>
+        <th>スケーラビリティ</th>
+        <th>動作環境</th>
+        <th>2026年 現在地</th>
+        <th>FTQC到達予測</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="type-badge" style="background:#0a1e3a;color:#93c5fd;border:1px solid #3b82f6;">⚡ 超伝導型</span></td>
+        <td style="color:#d0e0f8;font-size:0.75rem;">IBM / Google<br>富士通×理研 / 叡-Ⅱ / Rigetti</td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:75%;background:#3b82f6;"></div></div>
+            <span class="bar-label">中〜高</span>
+          </div>
+        </td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:90%;background:#3b82f6;"></div></div>
+            <span class="bar-label">最高</span>
+          </div>
+        </td>
+        <td style="font-size:0.72rem;">〜15mK<br>極低温必須</td>
+        <td style="font-size:0.72rem;color:#93c5fd;">IBM Nighthawk: 7,500ゲート<br>叡-Ⅱ 144QB稼働<br>Kookaburra QECモジュール</td>
+        <td style="font-size:0.72rem;">2028〜2029<br>IBM Starling: 200論理QB</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge" style="background:#140a2a;color:#c4b5fd;border:1px solid #7c3aed;">🔬 イオントラップ型</span></td>
+        <td style="color:#d0e0f8;font-size:0.75rem;">IonQ<br>Quantinuum</td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:95%;background:#7c3aed;"></div></div>
+            <span class="bar-label">最高水準</span>
+          </div>
+        </td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:50%;background:#7c3aed;"></div></div>
+            <span class="bar-label">中（改善中）</span>
+          </div>
+        </td>
+        <td style="font-size:0.72rem;">室温近傍〜<br>真空チャンバー必須</td>
+        <td style="font-size:0.72rem;color:#c4b5fd;">12論理量子ビット目標<br>99.99%ゲート精度</td>
+        <td style="font-size:0.72rem;">2027〜2029<br>IonQ: CRQC 2028</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge" style="background:#0a1e14;color:#6ee7b7;border:1px solid #059669;">🔷 トポロジカル型</span></td>
+        <td style="color:#d0e0f8;font-size:0.75rem;">Microsoft<br>（事実上独占）</td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:30%;background:#059669;"></div></div>
+            <span class="bar-label">検証中</span>
+          </div>
+        </td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:100%;background:#059669;"></div></div>
+            <span class="bar-label">理論上最大</span>
+          </div>
+        </td>
+        <td style="font-size:0.72rem;">極低温<br>特殊材料（InAs/Al）</td>
+        <td style="font-size:0.72rem;color:#6ee7b7;">Majorana 1 = 8量子ビット<br>Magne 建設中（2026末）</td>
+        <td style="font-size:0.72rem;">2030年代<br>実現すれば革命的</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge" style="background:#1a1008;color:#fde68a;border:1px solid #d97706;">⚛️ 中性原子型</span></td>
+        <td style="color:#d0e0f8;font-size:0.75rem;">Atom Computing<br>QuEra / Pasqal</td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:85%;background:#d97706;"></div></div>
+            <span class="bar-label">高</span>
+          </div>
+        </td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:80%;background:#d97706;"></div></div>
+            <span class="bar-label">高（柔軟）</span>
+          </div>
+        </td>
+        <td style="font-size:0.72rem;">室温近傍〜<br>光トラップ装置必須</td>
+        <td style="font-size:0.72rem;color:#fde68a;">QuEra×Harvard×MIT 2:1物理-論理比達成<br>Magne 50論理QB 共同開発中</td>
+        <td style="font-size:0.72rem;">2026〜2028<br>Magne: 2026末-27初予定</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge" style="background:#1a0a14;color:#fbcfe8;border:1px solid #db2777;">💡 光量子型</span></td>
+        <td style="color:#d0e0f8;font-size:0.75rem;">PsiQuantum / Xanadu<br><span style="color:#7dd3fc;">NTT（日本）</span></td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:55%;background:#db2777;"></div></div>
+            <span class="bar-label">中〜高（前進）</span>
+          </div>
+        </td>
+        <td>
+          <div class="readiness-bar">
+            <div class="bar-bg"><div class="bar-fill" style="width:85%;background:#db2777;"></div></div>
+            <span class="bar-label">高（量産向き）</span>
+          </div>
+        </td>
+        <td style="font-size:0.72rem;">室温動作可能<br>（光学系要冷却制御）</td>
+        <td style="font-size:0.72rem;color:#fbcfe8;">Xanadu Aurora: 12論理GKP実証<br>Xanadu IPO（XNDU）$302M調達<br><span style="color:#7dd3fc;">NTT: PEC-2 商用化 / IOWN 2.0</span></td>
+        <td style="font-size:0.72rem;">2028〜2030<br>PSI: 100万QB目標<br>NTT: 2030 / 100万QB</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge" style="background:#0a1e0a;color:#86efac;border:1px solid #166534;">🇯🇵 国内エコシステム</span></td>
+        <td style="color:#d0e0f8;font-size:0.75rem;"><span style="color:#4ade80;">産総研 G-QuAT</span><br><span style="color:#4ade80;">NTTデータ</span></td>
+        <td style="font-size:0.72rem;color:#86efac;" colspan="2">方式横断型（超伝導・中性原子・Si・光量子を網羅）<br>ハードウェア開発者ではなく実用化エコシステムのハブ</td>
+        <td style="font-size:0.72rem;">産総研：室温〜極低温（方式依存）<br>NTTデータ：クラウド/オンプレ</td>
+        <td style="font-size:0.72rem;color:#86efac;">産総研：QuEra導入済・Intel MOU<br>NTTデータ：PoCから実装フェーズへ</td>
+        <td style="font-size:0.72rem;">2026〜2028<br>産業応用先行実装</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-divider">NVIDIA Ising との接続関係</div>
+
+  <div style="background:#0a1008;border:1px solid #166534;border-radius:12px;padding:20px 22px;margin-bottom:16px;">
+    <div style="color:#4ade80;font-weight:700;margin-bottom:10px;font-size:0.9rem;">🟢 NVIDIA Ising（2026年4月14日発表）＋ NVAQC 設立 — 方式横断で貢献</div>
+    <div style="font-size:0.77rem;color:#86efac;line-height:1.7;">
+      NVIDIAのIsingモデルは特定の量子ビット方式に依存しない<strong style="color:#fff">「水平統合プラットフォーム」</strong>として機能します。<br>
+      <strong>Ising Calibration（35B VLM）</strong>：Academia Sinica・Fermilab・Harvard・Infleqtion・IQM・LBNL・英NPL等が採用。キャリブレーションを数日→数時間に短縮<br>
+      <strong>Ising Decoding（3D CNN）</strong>：方式を問わず量子誤り訂正のリアルタイムデコードを 2.5×高速・3×高精度化<br>
+      <strong>NVIDIA NVQLink</strong>：GPUとQPUをリアルタイム接続。<strong style="color:#fff">17 QPUベンダー / 5 制御ベンダー / 9米国立研</strong> と接続<br>
+      <strong>NVAQC（NVIDIA Accelerated Quantum Research Center）</strong>：ボストンに新設の量子加速研究所を始動。発表後 IonQ・D-Wave 株価+50%、Xanadu +250% と業界全体に投資が流入
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <div>情報ソース：NVIDIA Newsroom / IBM Quantum / Microsoft Azure Quantum / IonQ Roadmap / Fujitsu×RIKEN / 理研×大阪大QIQB / 東北大 / The Quantum Insider / QuEra / Atom Computing / NTT R&amp;D / NTT DATA / 産総研 G-QuAT / AIST Press Release / Xanadu / PsiQuantum</div>
+  <div>最終更新：2026年4月26日</div>
+</div>
+
+<script>
+function showTab(type) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('panel-' + type);
+  if (panel) panel.classList.add('active');
+  const btn = document.querySelector('[data-type="' + type + '"]');
+  if (btn) btn.classList.add('active');
+}
+</script>
+</body>
+</html>
