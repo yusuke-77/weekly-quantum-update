@@ -1,16 +1,13 @@
 """
-量子コンピューター 週次ニュース更新スクリプト
+量子コンピューター 週次ニュース更新スクリプト（Claude APIなし版）
 毎週月曜日にGitHub Actionsから自動実行される。
-RSSフィードで最新ニュースを収集し、Claude APIでHTML更新内容を生成する。
+RSSフィードで最新ニュースを収集し、HTMLに直接埋め込む。
 """
 
 import os
 import re
-import json
 from datetime import datetime, timezone, timedelta
 import feedparser
-import requests
-import anthropic
 
 # ============================================================
 # 設定
@@ -20,9 +17,9 @@ TODAY = datetime.now(JST).strftime("%Y年%m月%d日")
 TODAY_ISO = datetime.now(JST).strftime("%Y-%m-%d")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ROADMAP_HTML  = os.path.join(BASE_DIR, "quantum_roadmap.html")
-BY_TYPE_HTML  = os.path.join(BASE_DIR, "quantum_by_type.html")
-CLAUDE_MD     = os.path.join(BASE_DIR, "CLAUDE.md")
+ROADMAP_HTML = os.path.join(BASE_DIR, "quantum_roadmap.html")
+BY_TYPE_HTML = os.path.join(BASE_DIR, "quantum_by_type.html")
+CLAUDE_MD    = os.path.join(BASE_DIR, "CLAUDE.md")
 
 # 収集対象のRSSフィード
 RSS_FEEDS = [
@@ -33,6 +30,7 @@ RSS_FEEDS = [
     "https://research.ibm.com/blog/rss.xml",
 ]
 
+# フィルタリングキーワード
 KEYWORDS = [
     "quantum", "qubit", "FTQC", "error correction", "calibration",
     "IBM", "Google", "NVIDIA", "Microsoft", "IonQ", "Quantinuum",
@@ -41,7 +39,11 @@ KEYWORDS = [
     "Ising", "logical qubit", "fault tolerant",
 ]
 
+# ============================================================
+# ① ニュース収集
+# ============================================================
 def fetch_news() -> list[dict]:
+    """RSSフィードから直近7日間の量子関連ニュースを収集する"""
     items = []
     cutoff = datetime.now(timezone.utc) - timedelta(days=7)
 
@@ -61,15 +63,18 @@ def fetch_news() -> list[dict]:
                 text    = (title + " " + summary).lower()
 
                 if any(kw.lower() in text for kw in KEYWORDS):
+                    # HTMLタグを除去してクリーンなテキストにする
+                    clean_summary = re.sub(r"<[^>]+>", "", summary)[:200]
                     items.append({
                         "title":   title,
-                        "summary": summary[:300],
+                        "summary": clean_summary,
                         "link":    link,
                         "date":    published.strftime("%Y-%m-%d") if published else "unknown",
                     })
         except Exception as e:
             print(f"⚠️  RSSフェッチ失敗 ({url}): {e}")
 
+    # 重複除去
     seen, unique = set(), []
     for item in items:
         if item["title"] not in seen:
@@ -77,50 +82,14 @@ def fetch_news() -> list[dict]:
             unique.append(item)
 
     print(f"✅ ニュース収集完了: {len(unique)} 件")
-    return unique[:30]
+    return unique[:10]
 
 
-def generate_updates(news_items: list[dict]) -> dict:
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-
-    news_text = "\n\n".join(
-        f"[{item['date']}] {item['title']}\n{item['summary']}\nURL: {item['link']}"
-        for item in news_items
-    ) if news_items else "今週は新しいニュースが見つかりませんでした。"
-
-    prompt = f"""あなたは量子コンピューター技術の専門家です。
-以下の今週（直近7日間）の量子コンピューター関連ニュースを分析してください。
-
-=== 今週のニュース ===
-{news_text}
-
-=== タスク ===
-以下の情報を日本語でJSON形式で返してください：
-
-1. "summary": 今週の重要トピックを3〜5点の箇条書き（各50文字以内）
-2. "nvidia_update": NVIDIAに関する新情報（なければnull）
-3. "company_milestones": 各企業の新マイルストーン（企業名: 内容の辞書形式）
-4. "has_updates": 重要なアップデートがあったか（true/false）
-5. "update_date": "{TODAY}"
-
-JSONのみを返してください。コードブロックや説明文は不要です。"""
-
-    message = client.messages.create(
-        model="claude-opus-4-6",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    raw = message.content[0].text.strip()
-    raw = re.sub(r"^```(?:json)?\s*", "", raw)
-    raw = re.sub(r"\s*```$", "", raw)
-
-    result = json.loads(raw)
-    print(f"✅ Claude分析完了: updates={result.get('has_updates')}")
-    return result
-
-
+# ============================================================
+# ② HTMLファイルの日付更新
+# ============================================================
 def update_html_date(filepath: str, today: str) -> None:
+    """HTML内の「作成日：」をToday日付に更新する"""
     if not os.path.exists(filepath):
         print(f"⚠️  ファイルが見つかりません（スキップ）: {filepath}")
         return
@@ -135,30 +104,66 @@ def update_html_date(filepath: str, today: str) -> None:
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(updated)
         print(f"✅ 日付更新: {os.path.basename(filepath)}")
+    else:
+        print(f"ℹ️  日付変更なし: {os.path.basename(filepath)}")
 
 
-def update_nvidia_banner(updates: dict) -> None:
-    nvidia_info = updates.get("nvidia_update")
-    if not nvidia_info or not os.path.exists(ROADMAP_HTML):
+# ============================================================
+# ③ ニュースセクションをHTMLに挿入・更新
+# ============================================================
+def update_news_section(news_items: list[dict]) -> None:
+    """quantum_roadmap.html の週次ニュースセクションを更新する"""
+    if not os.path.exists(ROADMAP_HTML):
+        print(f"⚠️  {ROADMAP_HTML} が見つかりません（スキップ）")
         return
+
+    if not news_items:
+        print("ℹ️  今週のニュースなし。ニュースセクションはスキップ。")
+        return
+
+    # ニュースカードのHTML生成
+    cards_html = ""
+    for item in news_items:
+        title   = item["title"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        summary = item["summary"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        link    = item["link"]
+        date    = item["date"]
+        cards_html += f"""      <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;margin-bottom:10px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:6px;">{date}</div>
+        <a href="{link}" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:600;font-size:13px;">{title}</a>
+        <p style="color:#94a3b8;font-size:12px;margin:6px 0 0;">{summary}</p>
+      </div>\n"""
+
+    news_section = f"""<!-- NEWS_SECTION_START -->
+    <div id="weekly-news" style="background:#0f172a;border:1px solid #1e3a5f;border-radius:12px;padding:20px;margin:24px 0;">
+      <h3 style="color:#60a5fa;margin:0 0 16px;font-size:16px;">📰 今週の量子ニュース（{TODAY}更新）</h3>
+{cards_html}    </div>
+    <!-- NEWS_SECTION_END -->"""
 
     with open(ROADMAP_HTML, "r", encoding="utf-8") as f:
         content = f.read()
 
-    new_text = f'<br><strong style="color:#fff">📰 {TODAY_ISO}更新：</strong>{nvidia_info}'
-    updated = re.sub(
-        r'(CUDA-Q・NVQLink と統合。)</p>',
-        f'\\1{new_text}</p>',
-        content,
-        count=1,
-    )
-    if updated != content:
-        with open(ROADMAP_HTML, "w", encoding="utf-8") as f:
-            f.write(updated)
-        print(f"✅ NVIDIAバナー更新")
+    # 既存のニュースセクションを置換
+    if "<!-- NEWS_SECTION_START -->" in content:
+        updated = re.sub(
+            r"<!-- NEWS_SECTION_START -->.*?<!-- NEWS_SECTION_END -->",
+            news_section,
+            content,
+            flags=re.DOTALL,
+        )
+    else:
+        # 初回：</body> の直前に挿入
+        updated = content.replace("</body>", f"\n    {news_section}\n</body>", 1)
+
+    with open(ROADMAP_HTML, "w", encoding="utf-8") as f:
+        f.write(updated)
+    print(f"✅ ニュースセクション更新: {len(news_items)}件")
 
 
-def update_claude_md(updates: dict) -> None:
+# ============================================================
+# ④ CLAUDE.md の更新日を更新
+# ============================================================
+def update_claude_md() -> None:
     if not os.path.exists(CLAUDE_MD):
         print(f"⚠️  CLAUDE.md が見つかりません（スキップ）")
         return
@@ -174,29 +179,33 @@ def update_claude_md(updates: dict) -> None:
     print(f"✅ CLAUDE.md 更新日を更新")
 
 
+# ============================================================
+# メイン
+# ============================================================
 def main():
     print(f"\n{'='*50}")
     print(f"🔄 量子ニュース週次更新 — {TODAY}")
     print(f"{'='*50}\n")
 
+    # ① ニュース収集
     news_items = fetch_news()
-    updates = generate_updates(news_items)
+
+    # ② HTMLの日付更新
     update_html_date(ROADMAP_HTML, TODAY)
     update_html_date(BY_TYPE_HTML, TODAY)
-    update_nvidia_banner(updates)
-    update_claude_md(updates)
 
+    # ③ ニュースセクション更新
+    update_news_section(news_items)
+
+    # ④ CLAUDE.md 更新
+    update_claude_md()
+
+    # サマリー出力
     print(f"\n{'='*50}")
-    print("📋 今週の更新サマリー")
+    print(f"📋 今週のニュース ({len(news_items)}件)")
     print(f"{'='*50}")
-    for point in updates.get("summary", []):
-        print(f"  • {point}")
-
-    milestones = updates.get("company_milestones", {})
-    if milestones:
-        print("\n🏢 企業別新情報:")
-        for company, info in milestones.items():
-            print(f"  [{company}] {info}")
+    for item in news_items:
+        print(f"  [{item['date']}] {item['title'][:60]}")
 
     print(f"\n✅ 更新完了: {TODAY}\n")
 
