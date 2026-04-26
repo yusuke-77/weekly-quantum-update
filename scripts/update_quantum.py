@@ -109,19 +109,10 @@ def update_html_date(filepath: str, today: str) -> None:
 
 
 # ============================================================
-# ③ ニュースセクションをHTMLに挿入・更新
+# ③ ニュースセクションをHTMLに挿入・更新（共通関数）
 # ============================================================
-def update_news_section(news_items: list[dict]) -> None:
-    """quantum_roadmap.html の週次ニュースセクションを更新する"""
-    if not os.path.exists(ROADMAP_HTML):
-        print(f"⚠️  {ROADMAP_HTML} が見つかりません（スキップ）")
-        return
-
-    if not news_items:
-        print("ℹ️  今週のニュースなし。ニュースセクションはスキップ。")
-        return
-
-    # ニュースカードのHTML生成
+def build_news_section(news_items: list[dict], section_id: str = "weekly-news") -> str:
+    """ニュースセクションのHTML文字列を生成する"""
     cards_html = ""
     for item in news_items:
         title   = item["title"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -134,16 +125,29 @@ def update_news_section(news_items: list[dict]) -> None:
         <p style="color:#94a3b8;font-size:12px;margin:6px 0 0;">{summary}</p>
       </div>\n"""
 
-    news_section = f"""<!-- NEWS_SECTION_START -->
-    <div id="weekly-news" style="background:#0f172a;border:1px solid #1e3a5f;border-radius:12px;padding:20px;margin:24px 0;">
+    return f"""<!-- NEWS_SECTION_START -->
+    <div id="{section_id}" style="background:#0f172a;border:1px solid #1e3a5f;border-radius:12px;padding:20px;margin:24px 0;">
       <h3 style="color:#60a5fa;margin:0 0 16px;font-size:16px;">📰 今週の量子ニュース（{TODAY}更新）</h3>
 {cards_html}    </div>
     <!-- NEWS_SECTION_END -->"""
 
-    with open(ROADMAP_HTML, "r", encoding="utf-8") as f:
+
+def update_news_section(filepath: str, news_items: list[dict], label: str) -> None:
+    """指定HTMLファイルの週次ニュースセクションを更新する"""
+    if not os.path.exists(filepath):
+        print(f"⚠️  {os.path.basename(filepath)} が見つかりません（スキップ）")
+        return
+
+    if not news_items:
+        print("ℹ️  今週のニュースなし。ニュースセクションはスキップ。")
+        return
+
+    news_section = build_news_section(news_items)
+
+    with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 既存のニュースセクションを置換
+    # 既存のニュースセクションを置換、なければ </body> 直前に挿入
     if "<!-- NEWS_SECTION_START -->" in content:
         updated = re.sub(
             r"<!-- NEWS_SECTION_START -->.*?<!-- NEWS_SECTION_END -->",
@@ -152,12 +156,11 @@ def update_news_section(news_items: list[dict]) -> None:
             flags=re.DOTALL,
         )
     else:
-        # 初回：</body> の直前に挿入
         updated = content.replace("</body>", f"\n    {news_section}\n</body>", 1)
 
-    with open(ROADMAP_HTML, "w", encoding="utf-8") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write(updated)
-    print(f"✅ ニュースセクション更新: {len(news_items)}件")
+    print(f"✅ ニュースセクション更新 ({label}): {len(news_items)}件")
 
 
 # ============================================================
@@ -194,8 +197,9 @@ def main():
     update_html_date(ROADMAP_HTML, TODAY)
     update_html_date(BY_TYPE_HTML, TODAY)
 
-    # ③ ニュースセクション更新
-    update_news_section(news_items)
+    # ③ ニュースセクション更新（両ファイル）
+    update_news_section(ROADMAP_HTML, news_items, "quantum_roadmap.html")
+    update_news_section(BY_TYPE_HTML, news_items, "quantum_by_type.html")
 
     # ④ CLAUDE.md 更新
     update_claude_md()
