@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write   # ファイルをコミット・プッシュするため
+      models: read      # GitHub Models で英語ニュースを日本語に翻訳するため
 
     steps:
       - name: リポジトリをチェックアウト
@@ -58,10 +59,12 @@ jobs:
       - name: 更新前の構造チェック（ベースライン）
         run: python scripts/validate_html.py || echo "⚠️ 更新前から構造に問題あり（続行）"
 
-      # ANTHROPIC_API_KEY が Secrets に登録されていれば見出し・要約を日本語化する。
-      # 未登録でもジョブは失敗せず、英語のまま出力される。
+      # 英語ニュースの日本語化は GITHUB_TOKEN による GitHub Models（無料枠）で行う。
+      # ANTHROPIC_API_KEY が Secrets にあればそちらを優先。
+      # どちらも使えない場合もジョブは失敗せず、英語のまま出力される。
       - name: 量子ニュースを調査してHTMLを更新
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python scripts/update_quantum.py \
@@ -93,9 +96,9 @@ jobs:
         if: always()
         run: |
           if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
-            TRANSLATE="✅ 有効（日本語化）"
+            TRANSLATE="✅ Claude API"
           else
-            TRANSLATE="⚠️ 無効（英語のまま） — Secrets に ANTHROPIC_API_KEY を登録すると日本語化されます"
+            TRANSLATE="✅ GitHub Models（無料枠・追加設定不要）"
           fi
           {
             echo "## 🔄 量子ニュース更新完了"
