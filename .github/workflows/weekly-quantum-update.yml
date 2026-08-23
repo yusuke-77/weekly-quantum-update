@@ -58,7 +58,11 @@ jobs:
       - name: 更新前の構造チェック（ベースライン）
         run: python scripts/validate_html.py || echo "⚠️ 更新前から構造に問題あり（続行）"
 
+      # ANTHROPIC_API_KEY が Secrets に登録されていれば見出し・要約を日本語化する。
+      # 未登録でもジョブは失敗せず、英語のまま出力される。
       - name: 量子ニュースを調査してHTMLを更新
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python scripts/update_quantum.py \
             --mode "${{ steps.mode.outputs.mode }}" \
@@ -86,11 +90,18 @@ jobs:
           git push
 
       - name: サマリーを出力
+        if: always()
         run: |
+          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            TRANSLATE="✅ 有効（日本語化）"
+          else
+            TRANSLATE="⚠️ 無効（英語のまま） — Secrets に ANTHROPIC_API_KEY を登録すると日本語化されます"
+          fi
           {
             echo "## 🔄 量子ニュース更新完了"
             echo ""
             echo "- **モード**: ${{ steps.mode.outputs.mode }}"
             echo "- **実行日**: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M JST')"
+            echo "- **翻訳**: $TRANSLATE"
             echo "- **構造チェック**: ✅ パス"
           } >> "$GITHUB_STEP_SUMMARY"

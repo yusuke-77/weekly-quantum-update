@@ -11,6 +11,12 @@ RSSフィードで最新ニュースを収集し、以下を更新する:
     python scripts/update_quantum.py                 # 週次モード
     python scripts/update_quantum.py --mode monthly  # 月次モード
     python scripts/update_quantum.py --dry-run       # ファイルを書き換えず結果だけ表示
+    python scripts/update_quantum.py --no-translate  # 翻訳せず英語のまま
+
+日本語化:
+    収集元は英語のRSSなので、環境変数 ANTHROPIC_API_KEY が設定されていれば
+    Claude API で見出し・要約を日本語に翻訳する。キーが無い場合は翻訳を
+    スキップして英語のまま出力する（処理は止めない）。
 
 手動で書いた「今月のハイライト」ブロックは
 <!-- HIGHLIGHT_START --> 〜 <!-- HIGHLIGHT_END --> で囲んでおけば
@@ -20,6 +26,7 @@ RSSフィードで最新ニュースを収集し、以下を更新する:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import ssl
@@ -144,6 +151,101 @@ def fetch_news(lookback_days: int, max_items: int) -> list[dict]:
 
     print(f"✅ ニュース収集完了: {len(unique)} 件（直近{lookback_days}日）")
     return unique[:max_items]
+
+
+# ============================================================
+# ①-b 日本語への翻訳（Claude API）
+# ============================================================
+ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
+TRANSLATE_MODEL = "claude-haiku-4-5-20251001"
+
+TRANSLATE_PROMPT = """あなたは量子コンピューター分野の専門知識を持つ技術翻訳者です。
+以下の英語ニュース記事の見出しと要約を、日本語に翻訳してください。
+
+翻訳ルール:
+- 企業名・製品名（IBM, IonQ, Quantinuum, Willow, Heron など）は原文表記のまま残す
+- 専門用語は日本語の定訳を使う（qubit→量子ビット、error correction→誤り訂正、
+  fault tolerant→誤り耐性、logical qubit→論理量子ビット、
+  quantum advantage→量子優位性、trapped-ion→イオントラップ型、
+  neutral atom→中性原子型、annealing→アニーリング）
+- 見出しは簡潔な日本語に。要約は2文程度に収める
+- 数値・単位・固有名詞は正確に保持する
+- 訳せない場合は原文をそのまま返す
+
+以下のJSON配列を、同じ構造・同じ件数・同じ順序で返してください。
+title と summary のみ日本語化し、他のキーは変更しないこと。
+JSON以外の説明文は一切出力しないこと。
+
+{payload}"""
+
+
+def translate_items(items: list[dict], enabled: bool) -> list[dict]:
+    """ニュースの見出し・要約を日本語化する
+
+    ANTHROPIC_API_KEY が無い、または API 呼び出しに失敗した場合は
+    英語のまま返す（更新処理自体は止めない）。
+    """
+    if not items:
+        return items
+    if not enabled:
+        print("ℹ️  翻訳スキップ（--no-translate 指定）")
+        return items
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    if not api_key:
+        print("ℹ️  ANTHROPIC_API_KEY 未設定のため翻訳をスキップ（英語のまま出力）")
+        return items
+
+    payload = json.dumps(
+        [{"title": i["title"], "summary": i["summary"]} for i in items],
+        ensure_ascii=False,
+    )
+    body = json.dumps({
+        "model": TRANSLATE_MODEL,
+        "max_tokens": 4096,
+        "messages": [
+            {"role": "user", "content": TRANSLATE_PROMPT.format(payload=payload)}
+        ],
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        ANTHROPIC_API_URL,
+        data=body,
+        headers={
+            "content-type": "application/json",
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            data = json.loads(resp.read())
+        text = "".join(
+            block.get("text", "")
+            for block in data.get("content", [])
+            if block.get("type") == "text"
+        ).strip()
+
+        # ```json ... ``` で囲まれて返ってくる場合に備えて中身を取り出す
+        fence = re.search(r"```(?:json)?\s*(.+?)\s*```", text, re.DOTALL)
+        if fence:
+            text = fence.group(1)
+
+        translated = json.loads(text)
+        if not isinstance(translated, list) or len(translated) != len(items):
+            print(f"⚠️  翻訳結果の件数が不一致（{len(translated)}/{len(items)}）。英語のまま使用")
+            return items
+
+        for original, ja in zip(items, translated):
+            original["title"] = ja.get("title") or original["title"]
+            original["summary"] = ja.get("summary") or original["summary"]
+
+        print(f"✅ 日本語に翻訳: {len(items)} 件")
+    except Exception as exc:  # noqa: BLE001 - 翻訳失敗で更新を止めない
+        print(f"⚠️  翻訳に失敗（英語のまま続行）: {exc}")
+
+    return items
 
 
 # ============================================================
@@ -352,6 +454,8 @@ def main() -> int:
                         help="更新モード（既定: weekly）")
     parser.add_argument("--dry-run", action="store_true",
                         help="ファイルを書き換えずに結果のみ表示")
+    parser.add_argument("--no-translate", action="store_true",
+                        help="翻訳を行わず英語のまま出力する")
     args = parser.parse_args()
 
     cfg = MODE_CONFIG[args.mode]
@@ -362,6 +466,7 @@ def main() -> int:
     print(f"{'=' * 56}\n")
 
     news_items = fetch_news(cfg["lookback_days"], cfg["max_items"])
+    news_items = translate_items(news_items, enabled=not args.no_translate)
 
     for path, label in HTML_FILES:
         update_dates(path, label, args.mode, args.dry_run)
