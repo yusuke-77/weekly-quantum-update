@@ -301,23 +301,25 @@
 <div class="header">
   <h1>量子コンピューター 実用化ロードマップ</h1>
   <p>NISQ時代からフォールトトレラント時代へ — 現在地と今後の展望</p>
-  <div class="now-badge">📍 現在地：2026年4月</div>
+  <div class="now-badge">📍 現在地：2026年8月17日</div>
 </div>
 
 <!-- NVIDIAバナー -->
 <div class="nvidia-banner">
   <div class="nvidia-logo">NVIDIA</div>
   <div class="nvidia-content">
-    <h3>🔥 NVIDIA Ising — 2026年4月14日 発表 ＋ NVAQC 始動（速報）</h3>
+    <h3>🔥 NVIDIA Ising — 2026年4月14日 発表 ＋ NVAQC 始動 ＋ ABCI-Q 世界最大の量子研究スパコン開設</h3>
     <p>世界初の量子プロセッサ向けオープンAIモデル群。<strong style="color:#c8e88a">キャリブレーション自動化</strong>（35Bパラメーター VLM）と<strong style="color:#c8e88a">リアルタイム誤り訂正デコーダー</strong>（3D CNN）を提供。
     デコード速度 <strong style="color:#fff">2.5×</strong>、精度 <strong style="color:#fff">3×</strong> 向上。Academia Sinica・Fermilab・Harvard・Infleqtion・IQM・LBNL・英NPL等が採用。
-    ボストンに <strong style="color:#fff">NVAQC（NVIDIA Accelerated Quantum Research Center）</strong>新設。発表後 IonQ・D-Wave 株価+50%、Xanadu +250%。</p>
+    ボストンに <strong style="color:#fff">NVAQC（NVIDIA Accelerated Quantum Research Center）</strong>新設。
+    産総研 G-QuAT に <strong style="color:#fff">ABCI-Q</strong>（世界最大の量子研究専用スパコン）を開設：富士通超伝導QC・QuEra中性原子QC・OptQC光量子QCのハイブリッドQPU環境を構築。発表後 IonQ・D-Wave 株価+50%、Xanadu +250%。</p>
     <div class="nvidia-pills">
       <span class="pill pill-green">Ising Calibration (35B VLM)</span>
       <span class="pill pill-green">Ising Decoding (3D CNN)</span>
       <span class="pill pill-blue">CUDA-Q 統合</span>
       <span class="pill pill-blue">NVQLink：17 QPU + 5制御 + 9米国立研</span>
       <span class="pill pill-pink">NVAQC ボストン研究所 始動</span>
+      <span class="pill pill-pink">ABCI-Q：産総研G-QuAT 世界最大量子研究スパコン</span>
     </div>
   </div>
 </div>
@@ -374,14 +376,224 @@
         <div class="card-desc">Nighthawk が年末までに 7,500ゲート / 360量子ビットへ拡張。Kookaburra（LDPC符号 + 論理処理ユニット）で初のQEC対応モジュール。</div>
       </div>
       <div class="card">
+        <div class="card-company c-google">Google Quantum AI</div>
+        <div class="card-title">中性原子型へロードマップ拡張（3/24）＋ REPLIQA 開始（5月）★NEW</div>
+        <div class="card-desc">超伝導型に加え中性原子型を正式採用。デュアルモダリティ戦略へ転換。Willow Early Access Program（5/15締切）に続き、量子AI×生命科学の研究資金プログラム「REPLIQA」（$10M）も始動。タンパク質フォールディング・創薬代謝シミュレーションを目標。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum × Microsoft</div>
+        <div class="card-title">Level 2 Resilient フェーズ 達成</div>
+        <div class="card-desc">System Model H2 が世界初の Microsoft Level 2 到達。フォールトトレラント量子計算が現実に。「数年先」とされた到達点を前倒し。</div>
+      </div>
+      <div class="card">
         <div class="card-company c-google">業界全体</div>
         <div class="card-title">量子ビット数→品質へのシフト</div>
-        <div class="card-desc">「何量子ビットか」から「どれだけ正確か」へ。QEC実装の精度が競争軸となる。QuEra・Harvard・MITが2:1物理-論理比達成。</div>
+        <div class="card-desc">「何量子ビットか」から「どれだけ正確か」へ。QEC実装の精度が競争軸。QuEra・Harvard・MITが2:1物理-論理比達成。</div>
       </div>
       <div class="card">
         <div class="card-company c-ms">東北大学</div>
         <div class="card-title">量子スピン液体から電気信号抽出（4/23）</div>
         <div class="card-desc">次世代絶縁性量子材料からの初検出。トポロジカル量子計算の核となる物理現象を制御する技術基盤。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">IonQ</div>
+        <div class="card-title">フォトニック・インターコネクト 実証（4/14）</div>
+        <div class="card-desc">2台の独立トラップドイオン量子システムを光子で接続成功。商用量子間エンタングルメントを検証。単一プロセッサ超のスケール化への重要な一歩。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">IonQ × Florida LambdaRail</div>
+        <div class="card-title">量子安全ネットワーク提携（4/27）</div>
+        <div class="card-desc">フロリダ州の高性能研究ネットワーク FLR と量子セーフ通信プロジェクトで提携。光ファイバインフラでの量子鍵配送（QKD）と PQC 統合検証へ。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum × RIKEN</div>
+        <div class="card-title">System Model H2 を理研に納入（4/14）</div>
+        <div class="card-desc">日本初の商用トラップドイオン機が理研「Reimei-Fugaku」HPCハイブリッドプラットフォームへ統合。富岳と量子の協調計算が始動。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum（Honeywell）</div>
+        <div class="card-title">IPO S-1 機密申請（4/22）</div>
+        <div class="card-desc">SEC に IPO S-1 草案を機密提出。Honeywell 過半数所有のまま米株式公開へ。Xanadu 上場に続く量子IPOラッシュへ。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM × Voyager Space</div>
+        <div class="card-title">地球-ISS PQC 通信に世界初成功（4/15）</div>
+        <div class="card-desc">IBM Quantum Safe Remediator＋Voyager Space Edge™ Micro Datacenter で NIST PQC アルゴリズムによる宇宙-地上間通信を実証。月・深宇宙ミッションのセキュリティ青写真。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM × ParityQC / Algorithmiq</div>
+        <div class="card-title">Heron r3 で 52量子ビット QFT・Q4Bio賞</div>
+        <div class="card-desc">ParityQC は SWAPなし「Parity Twine」アーキテクチャで 52量子ビット QFT を実行。Algorithmiq は Cleveland Clinic との創薬量子-古典ハイブリッド WF で Q4Bio $2M を受賞。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM</div>
+        <div class="card-title">Poughkeepsie 量子キャンパス大規模拡張（4/28）★NEW</div>
+        <div class="card-desc">次世代 Starling 量子システムの製造・組立に向け、511,000平方フィート（約4.7万㎡）の新施設を申請。40年以上で最大の投資。約200名の雇用創出。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">IonQ</div>
+        <div class="card-title">Tempo 256量子ビット EQC機・Horizon Quantum 向け出荷決定（4/9）★NEW</div>
+        <div class="card-desc">第6世代チップベース IonQ Tempo（EQC：電子制御型、256量子ビット）を Horizon Quantum が購入。2026年中に初出荷予定。ゲート制御を半導体チップに完全統合し製造コストを大幅削減。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum × CQT × Qubit Pharma</div>
+        <div class="card-title">世界初の量子 MCMC アルゴリズムをハードで実行（5/2）★NEW</div>
+        <div class="card-desc">シンガポール CQT と Qubit Pharmaceuticals が Quantinuum H2・Helios システム上で量子マルコフ連鎖モンテカルロ（qMCMC）を世界初のハードウェア実行に成功。創薬分子シミュレーションへの応用へ。</div>
+      </div>
+      <div class="card">
+        <div class="card-company" style="color:#fbbf24;">東陽テクニカ（IQM Radiance）</div>
+        <div class="card-title">日本企業初の量子コンピューター購入（4/27）</div>
+        <div class="card-desc">フィンランド IQM の 20量子ビット機「Radiance」を東陽テクニカが購入。2026年末納入予定。日本企業初のオンプレ量子コンピューター導入事例として注目。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM × Cleveland Clinic × RIKEN</div>
+        <div class="card-title">12,635原子タンパク質シミュレーション 世界最大記録（5/5）★NEW</div>
+        <div class="card-desc">量子中心スーパーコンピューティングで T4-Lysozyme（11,608原子）・Trypsin（12,635原子）の生物学的シミュレーションに成功。IBM Heron r3（156QB）+ 富岳 + Miyabi-G のハイブリッド手法。6ヶ月で40倍規模・210倍精度向上。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">IonQ</div>
+        <div class="card-title">Q1 2026 売上 $64.7M（前年比755%増）（5/6）</div>
+        <div class="card-desc">2026年Q1として最高記録。256量子ビット「Tempo」システムをCambridge大に出荷決定。通年ガイダンス $260〜270M に引き上げ。ポーランド・フロリダでの量子ネットワークプロジェクトも進行中。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">IonQ</div>
+        <div class="card-title">Boulder（コロラド）量子研究所 開設（5/14）★NEW</div>
+        <div class="card-desc">22,000平方フィートの新施設。次世代半導体トラップチップの設計・テスト専用ラボ。2026年中に量子コンピューターを搬入予定。Aria・Forte・Tempo の後継チップ開発を加速。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum（Honeywell）</div>
+        <div class="card-title">Nasdaq IPO 公開価格決定（ticker: QNT・6/4上場予定）★NEW</div>
+        <div class="card-desc">5/26、Quantinuum が IPO 公開価格を $45〜50/株、約21.05百万株で設定。評価額 約$12.7B（最大$13B）、最大$1.05B 調達。すでに二桁倍の超過需要（オーバーサブスクライブ）。主幹事 JPMorgan/MS。2026年6月4日に Nasdaq（QNT）で取引開始予定。フルスタック量子企業として史上初の伝統的IPO。BMW Groupとの量子マテリアルサイエンス提携（5/8）も継続。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-nvidia">産総研 G-QuAT × NVIDIA</div>
+        <div class="card-title">ABCI-Q：世界最大の量子研究専用スパコン開設</div>
+        <div class="card-desc">量子・AI融合技術ビジネス開発グローバル研究センター（G-QuAT）に NVIDIA が支援する ABCI-Q を設立。富士通超伝導QC・QuEra中性原子QC・OptQC光量子QCを同一プラットフォームに統合。方式横断ハイブリッドQPU計算を実現。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM × 米国商務省</div>
+        <div class="card-title">CHIPS法 $1B で「Anderon」量子ファウンドリー設立（5/21）★NEW</div>
+        <div class="card-desc">米国初の専用量子チップ製造ファウンドリー「Anderon」を Albany (NY) に建設。IBM が $1B を自社投資し、DoC の CHIPS 補助金 $1B と合わせ計 $2B を投下。超伝導量子ウェハーを 300mm で量産し複数 QPU ベンダーへ供給。2029年の Starling FTQC を見据えた製造基盤整備。IBM 株は発表翌日 +12%。</div>
+      </div>
+      <div class="card">
+        <div class="card-company" style="color:#67e8f9">米国商務省 CHIPS法</div>
+        <div class="card-title">量子業界に総額 $2B 支援 — 9社へ LOI（5/21）★NEW</div>
+        <div class="card-desc">DoC が CHIPS &amp; Science Act のもとで 9社へ LOI を通知。IBM $1B・GlobalFoundries $375M・D-Wave $100M・Infleqtion $100M・Diraq $38M、および Quantinuum・PsiQuantum・Atom Computing・Rigetti に最大 $100M ずつ。政府は各社への少数株持分を取得。IonQ株 発表当日+12%、量子株全体が急騰。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM</div>
+        <div class="card-title">5年間で $10B超の量子投資を表明（5/28）★NEW</div>
+        <div class="card-desc">IBM が今後5年間で量子コンピューティングへ $100億超を投じる計画を発表。R&amp;D・製造拡張・エコシステム提携・設備投資、および量子関連の M&amp;A を対象とする大型コミットメント。商用化（量子優位性）の加速と Starling FTQC への製造基盤整備を後押し。CHIPS法 Anderon ファウンドリー（$1B）に続く投資強化。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum（QNT）</div>
+        <div class="card-title">Nasdaq IPO 取引開始 予定（6/4）★NEW</div>
+        <div class="card-desc">公開価格 $45〜50/株・評価額 約$12.7B で 6月4日に Nasdaq 上場予定。量子業界初の本格的伝統IPO。オーバーサブスクライブ状態で需要旺盛。量子株ラリーの試金石として注目。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ms">Microsoft</div>
+        <div class="card-title">Majorana 2 発表 — 1,000倍信頼性・2029年目標前倒し（6/2）★NEW</div>
+        <div class="card-desc">Al→Pb材料変更でトポロジカルギャップ2倍以上。量子ビット寿命20秒（最長1分）。Microsoft Discovery AIで材料探索を加速。スケーラブル量子コンピューター目標を2029年へ大幅前倒し。外部物理学者から再現性への懐疑も。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum（QNT）</div>
+        <div class="card-title">Nasdaq 上場完了 — $1.68B調達・初値+13%（6/4-5）★NEW</div>
+        <div class="card-desc">公開価格$60/株（$45-50から引き上げ）。2,800万株。初値$68（+13%）。評価額$14-15B。6/16現在$57.91。フルスタック量子企業初の本格的伝統IPO。量子業界への機関投資家需要が高水準を維持。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">IonQ</div>
+        <div class="card-title">9種類の QEC コードをイオントラップ上で一挙実証（6/6）★NEW</div>
+        <div class="card-desc">トラップドイオンプロセッサ上で9種類の異なる量子誤り訂正コードの実行に成功。FTQC移行期に向けた誤り耐性技術の多様な検証を単一HWで実現。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Microsoft × Quantinuum</div>
+        <div class="card-title">Nature 掲載：誤り率 11〜800倍削減をpeer-reviewで実証（6/12-13）★NEW</div>
+        <div class="card-desc">Carbon code・Tesseract code で12論理QB使用。物理QBベースライン比で11〜800倍の論理エラー率削減。誤り訂正OSSライブラリ「deq」も公開。量子誤り訂正の商用化に向けた重要マイルストーン。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM</div>
+        <div class="card-title">ffsim + OpenEvolve 公開 — AI駆動 QEC 発見（6/12-13）★NEW</div>
+        <div class="card-desc">ffsim：フェルミオン回路の高速古典シミュレーター。OpenEvolve：LLM誘導で新QECコード候補465種を発見する進化的AIフレームワーク。両ツールともOSSとして公開し研究加速。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Sandia × Quantinuum</div>
+        <div class="card-title">Helios 98量子ビット機を第三者検証 — 2QB精度99.921%（6/17）★NEW</div>
+        <div class="card-desc">Sandia国立研究所が peer-review 論文で Helios を独立検証。1QBゲート99.9975%・2QBゲート99.921%・SPAM 99.967%。深い乱数回路の古典シミュレーションにはエクサスケール年規模が必要と確認。</div>
+      </div>
+      <div class="card card-full">
+        <div class="card-company" style="color:#67e8f9">米ホワイトハウス</div>
+        <div class="card-title">トランプ大統領 量子技術で大統領令2本に署名（6/22）★NEW</div>
+        <div class="card-desc">EO 14413「量子イノベーションの次のフロンティア」：DOE・国防・商務・情報機関横断の QC-ADDS 構想で2028年までに科学発見級の量子コンピューターをDOE施設に納入目標。国家量子戦略更新・人材育成・国内サプライチェーン強化も指示。EO 14412「高度暗号攻撃からの防衛」：連邦システムの PQC 移行を2030年（鍵確立）／2031年（電子署名）までに義務化。連邦契約企業にも PQC 準拠を要求。発表後、量子株が急騰（6/23 Rigetti 約$22.65・D-Wave 約$26.30）。</div>
+      </div>
+      <div class="card">
+        <div class="card-company" style="color:#fbbf24">IQM</div>
+        <div class="card-title">Directional Tile Codes 発表 — QECオーバーヘッド最大1,000分の1（6/23）★NEW</div>
+        <div class="card-desc">従来の表面符号に比べ物理-論理量子ビットのオーバーヘッドを最大1,000倍削減する新QECアーキテクチャ。平面配置のまま実装可能で超伝導型のスケーリングに有利。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM</div>
+        <div class="card-title">Qiskit Paulice 公開 — Pauliチェック誤り検出OSS（6/29）★NEW</div>
+        <div class="card-desc">spacetime Pauli check を回路に自動注入するオープンソースアドオン。NISQチップのノイズ緩和を50量子ビット回路まで実証。ffsim・OpenEvolveに続くOSS攻勢。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ms">米国防総省</div>
+        <div class="card-title">PQC戦略 ＋ Project Farseer 始動（7/1）</div>
+        <div class="card-desc">軍事システムの暗号脆弱性を2031年末までに排除する Post-Quantum Cryptography 戦略を公表。DIU は量子センシング・タイミングHWの軍事実装を加速する $200M の「Project Farseer」を開始。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM × インド Andhra Pradesh州</div>
+        <div class="card-title">インド初の量子コンピューター「Quantum Valley」へ設置決定（7月）★NEW</div>
+        <div class="card-desc">Amaravati の「Quantum Valley」に IBM Quantum System Two（Heron 156QB）を2026年9月までに設置予定。インドをディープテック・イノベーションハブ化する州構想の中核。IBMのグローバル展開が加速。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">ORNL × Cleveland Clinic × IBM</div>
+        <div class="card-title">核融合向け：FLiBe溶融塩トリチウム結合の量子-古典シミュレーション初成功（7月）★NEW</div>
+        <div class="card-desc">オークリッジ国立研らが FLiBe 溶融塩中のトリチウム結合を量子-古典ハイブリッドで世界初シミュレーション。米DOE「Genesis Mission」を支援し、核融合発電のトリチウム抽出・燃料増殖課題の解決へ。5月のタンパク質記録に続く量子中心スーパーコンピューティングの応用拡大。</div>
+      </div>
+      <div class="card">
+        <div class="card-company" style="color:#fbbf24">Chips JU × Pasqal</div>
+        <div class="card-title">Q-PLANET：€50M で中性原子チップの欧州製造基盤を構築（7月）★NEW</div>
+        <div class="card-desc">レーザーオンチップ・原子チップ・微細加工蒸気セルの標準製造プロセスを開発し、汎欧州の量子チップファブ網を整備。中性原子型の産業化・スケール課題の解消を狙う大型官民イニシアチブ。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-google">Google Quantum AI</div>
+        <div class="card-title">Willow：表面符号 論理エラー率 7.72×10⁻⁴/サイクルの記録更新（7月）★NEW</div>
+        <div class="card-desc">強化学習ベースの新ハードウェア制御フレームワークにより Willow プロセッサの QEC 性能が記録更新。Fraunhofer INQUBATOR と並び early-FTQC アルゴリズムの公募（最大$100K・8/7締切）も開始し、限定量子ビット系の応用探索を推進。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ms">ETH Zurich / EeroQ</div>
+        <div class="card-title">新ハードウェア基礎技術：振動量子RAM・電子シャトリング（7/10）</div>
+        <div class="card-desc">ETH Zurich が超伝導量子ビット×機械共振器で音響振動に量子情報を格納する「振動量子RAM」を実証（省スペース・長コヒーレンス）。EeroQ は超流動ヘリウム上の電子パケットを無損失で長距離輸送するシャトリングに成功。</div>
+      </div>
+      <div class="card card-full">
+        <div class="card-company c-ibm">IBM × Qedma</div>
+        <div class="card-title">🏆 量子優位性を実証 — 74量子ビットで富岳を超える物理シミュレーション（7/30）★NEW</div>
+        <div class="card-desc">Qedma の誤り緩和ソフト「QESEM」と IBM 量子コンピューターを組み合わせ、2次元 Floquet Ising モデルの振動ダイナミクスを最大74量子ビットで解析。理研「富岳」を含む最先端の古典シミュレーションでは一貫した結果を得られない領域で、信頼できる（trusted）計算を実現。IBMが掲げた「2026年 量子優位性」目標の中核的成果であり、誤り緩和レジームでの実用的materials researchツールとしての地位を確立。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ibm">IBM × HRL Laboratories</div>
+        <div class="card-title">HRL Labs 買収を発表 — シリコンスピン量子ビットを獲得（7/23）★NEW</div>
+        <div class="card-desc">Boeing・GM 共同出資の研究機関 HRL を買収。同社は2026年4月に54量子ドット・18量子ビットのシリコンプロセッサを発表し exchange-only 方式を一桁改善。IBMは超伝導型に加えシリコンスピン型を獲得し二刀流化、Anderon ファウンドリーでのスピン量子ビット製造も視野。Q3末クローズ予定。</div>
+      </div>
+      <div class="card card-full">
+        <div class="card-company c-ion">Quantinuum × シカゴ大 × Harvard × Stony Brook</div>
+        <div class="card-title">世界初：非可換エニオンで「万能トポロジカルゲートセット」を実現（7/15 Nature）★NEW</div>
+        <div class="card-desc">H2 トラップドイオン機で54物理量子ビットをもつれさせ、S3 非可換対称群に基づく安定なトポロジカル状態を生成。エニオンのブレイディングと fusion 測定を組み合わせ、フォールトトレラントな万能演算セットを実証。資源消費の大きい「magic state distillation」なしで万能量子計算が可能であることを示し、数十年の理論的障壁を突破。</div>
+      </div>
+      <div class="card">
+        <div class="card-company" style="color:#67e8f9">D-Wave × AT&amp;T</div>
+        <div class="card-title">Nasdaq 上場移管 ＋ AT&amp;T が全社ネットワーク運用へ拡大（7/27）★NEW</div>
+        <div class="card-desc">NYSE から Nasdaq Global Select Market へ移管（QBTS）。同日 AT&amp;T が複数年契約を拡大し、量子アニーリングを障害検知・技術者派遣計画・ネットワークトラフィック管理へ展開。初期案件では約1時間の処理を15秒未満に短縮（240倍加速）。株価は当日 +20.36%（$19.51）。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-fujitsu">日立 × Intel × 産総研</div>
+        <div class="card-title">シリコン量子コンピューターの共同研究開発を開始（7/24）★NEW</div>
+        <div class="card-desc">NEDO 事業に採択され、2030年度に1,000量子ビット級の誤り耐性型シリコン量子コンピューター試作機の完成を目指す。実施期間は2029年3月まで。国内エコシステムに「シリコンスピン型」という新たな方式軸が加わり、超伝導・光量子・中性原子との方式間競争が本格化。</div>
+      </div>
+      <div class="card">
+        <div class="card-company c-ion">Quantinuum × SoftBank</div>
+        <div class="card-title">企業導入ロードマップの共同白書を公開（7/21）★NEW</div>
+        <div class="card-desc">量子コンピューティングを企業ユースケースへ統合する道筋を提示。Helios（現行）→ Sol（2027）→ Apollo（2029）→ Lumos（2030年代）の各世代と、対応する産業応用のマイルストーンを整理。日本の通信大手が量子導入の実務フレームを共同策定した点で注目。</div>
       </div>
     </div>
   </div>
@@ -500,15 +712,22 @@
 <!-- フッター -->
 <div class="footer">
   <div class="footer-sources">
-    情報ソース：NVIDIA Newsroom / Nikkei xTECH / The Quantum Insider / IBM Quantum Roadmap / Deloitte Japan
+    情報ソース：NVIDIA Newsroom / Nikkei xTECH / The Quantum Insider / IBM Quantum Roadmap / Quantinuum Press / IonQ Investors / Voyager Space / Deloitte Japan
   </div>
-  <div class="footer-date">最終更新：2026年4月26日</div>
+  <div class="footer-date">最終更新：2026年08月17日</div>
 </div>
 
 
-    <!-- NEWS_SECTION_START -->
+        <!-- NEWS_SECTION_START -->
     <div id="weekly-news" style="background:#0f172a;border:1px solid #1e3a5f;border-radius:12px;padding:20px;margin:24px 0;">
       <h3 style="color:#60a5fa;margin:0 0 16px;font-size:16px;">📰 今週の量子ニュース（2026年08月17日更新）</h3>
+      <!-- HIGHLIGHT_START -->
+      <div style="background:#0c1f3a;border:1px solid #3b82f6;border-radius:8px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:11px;color:#93c5fd;margin-bottom:6px;font-weight:700;letter-spacing:0.08em;">MONTHLY HIGHLIGHT — 2026-07-30</div>
+        <a href="https://newsroom.ibm.com/2026-07-30-ibm-and-qedma-demonstrate-quantum-advantage,-modeling-physics-beyond-classical-capabilities-through-trusted-quantum-computation" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:700;font-size:14px;">🏆 IBM × Qedma：量子優位性を実証 — 74量子ビットで「富岳」を超える物理シミュレーション</a>
+        <p style="color:#cbd5e1;font-size:12px;margin:6px 0 0;">Qedma の誤り緩和ソフト「QESEM」と IBM 量子コンピューターを組み合わせ、2次元 Floquet Ising モデルの長寿命振動ダイナミクスを最大74量子ビットで解析。理研「富岳」を含む最先端の古典シミュレーションでは一貫した結果が得られない規模で、信頼できる（trusted）誤り緩和計算を実現した。IBMが掲げてきた「2026年 量子優位性」目標の中核成果であり、量子ハードウェアが材料研究の実用ツールとなったことを示す7月最大のマイルストーン。</p>
+      </div>
+      <!-- HIGHLIGHT_END -->
       <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;margin-bottom:10px;">
         <div style="font-size:11px;color:#64748b;margin-bottom:6px;">2026-08-16</div>
         <a href="https://thequantuminsider.com/2026/08/16/company-lab-launches-colab-q-for-quantum-startups/" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:600;font-size:13px;">The Company Lab Launches CO.LAB Q for Quantum Startups</a>

@@ -1,11 +1,26 @@
-name: 🔄 週次 量子コンピューター ニュース更新
+name: 🔄 量子コンピューター ニュース更新（週次 / 月次）
 
 on:
   schedule:
-    # 毎週月曜日 午前9時（日本時間）= UTC 0:00
+    # 毎週月曜日 午前9時（日本時間）= UTC 0:00 → 週次更新
     - cron: '0 0 * * 1'
+    # 毎月1日 午前9時（日本時間）= UTC 0:00 → 月次まとめ更新
+    - cron: '0 0 1 * *'
   workflow_dispatch:
-    # 手動実行も可能（GitHubのActionsタブから「Run workflow」）
+    inputs:
+      mode:
+        description: '更新モード'
+        required: true
+        default: 'weekly'
+        type: choice
+        options:
+          - weekly
+          - monthly
+      dry_run:
+        description: 'dry-run（ファイルを変更せず結果のみ確認）'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   update-quantum-news:
@@ -23,16 +38,59 @@ jobs:
           python-version: '3.11'
 
       - name: 依存パッケージをインストール
-        run: pip install feedparser
+        run: pip install -r requirements.txt
+
+      # 毎月1日の cron（0 0 1 * *）なら monthly、それ以外は weekly。
+      # 手動実行時は入力値をそのまま使う。
+      - name: 更新モードを判定
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MODE="${{ inputs.mode }}"
+          elif [ "${{ github.event.schedule }}" = "0 0 1 * *" ]; then
+            MODE="monthly"
+          else
+            MODE="weekly"
+          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "🔧 更新モード: $MODE"
+
+      - name: 更新前の構造チェック（ベースライン）
+        run: python scripts/validate_html.py || echo "⚠️ 更新前から構造に問題あり（続行）"
 
       - name: 量子ニュースを調査してHTMLを更新
-        run: python scripts/update_quantum.py
+        run: |
+          python scripts/update_quantum.py \
+            --mode "${{ steps.mode.outputs.mode }}" \
+            ${{ inputs.dry_run == true && '--dry-run' || '' }}
+
+      # 更新でタグの開閉が崩れた場合はここで失敗させ、壊れた状態のpushを防ぐ
+      - name: 更新後の構造チェック
+        run: python scripts/validate_html.py
 
       - name: 変更をコミット & プッシュ
+        if: ${{ inputs.dry_run != true }}
         run: |
           git config --global user.name  "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ "${{ steps.mode.outputs.mode }}" = "monthly" ]; then
+            LABEL="月次"
+          else
+            LABEL="週次"
+          fi
+
           git add -A
           git diff --staged --quiet || \
-            git commit -m "🔄 週次量子ニュース更新 $(date '+%Y-%m-%d')"
+            git commit -m "🔄 ${LABEL}量子ニュース更新 $(date '+%Y-%m-%d')"
           git push
+
+      - name: サマリーを出力
+        run: |
+          {
+            echo "## 🔄 量子ニュース更新完了"
+            echo ""
+            echo "- **モード**: ${{ steps.mode.outputs.mode }}"
+            echo "- **実行日**: $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M JST')"
+            echo "- **構造チェック**: ✅ パス"
+          } >> "$GITHUB_STEP_SUMMARY"

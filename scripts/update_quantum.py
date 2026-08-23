@@ -1,25 +1,53 @@
 """
-量子コンピューター 週次ニュース更新スクリプト（Claude APIなし版）
-毎週月曜日にGitHub Actionsから自動実行される。
-RSSフィードで最新ニュースを収集し、HTMLに直接埋め込む。
+量子コンピューター ニュース更新スクリプト
+GitHub Actions から週次（毎週月曜）／月次（毎月1日）で自動実行される。
+
+RSSフィードで最新ニュースを収集し、以下を更新する:
+  - quantum_roadmap.html  : 現在地バッジ / フッター日付 / ニュースセクション
+  - quantum_by_type.html  : 現在地タグ   / フッター日付 / ニュースセクション
+  - CLAUDE.md             : 最終更新日
+
+使い方:
+    python scripts/update_quantum.py                 # 週次モード
+    python scripts/update_quantum.py --mode monthly  # 月次モード
+    python scripts/update_quantum.py --dry-run       # ファイルを書き換えず結果だけ表示
+
+手動で書いた「今月のハイライト」ブロックは
+<!-- HIGHLIGHT_START --> 〜 <!-- HIGHLIGHT_END --> で囲んでおけば
+自動更新でも消えずに保持される。
 """
 
+from __future__ import annotations
+
+import argparse
 import os
 import re
-from datetime import datetime, timezone, timedelta
+import ssl
+import sys
+import urllib.request
+from datetime import datetime, timedelta, timezone
+
 import feedparser
 
 # ============================================================
 # 設定
 # ============================================================
 JST = timezone(timedelta(hours=9))
-TODAY = datetime.now(JST).strftime("%Y年%m月%d日")
-TODAY_ISO = datetime.now(JST).strftime("%Y-%m-%d")
+NOW = datetime.now(JST)
+
+TODAY_JP = NOW.strftime("%Y年%m月%d日")          # 2026年07月31日
+TODAY_JP_SHORT = f"{NOW.year}年{NOW.month}月{NOW.day}日"  # 2026年7月31日
+TODAY_ISO = NOW.strftime("%Y-%m-%d")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROADMAP_HTML = os.path.join(BASE_DIR, "quantum_roadmap.html")
 BY_TYPE_HTML = os.path.join(BASE_DIR, "quantum_by_type.html")
-CLAUDE_MD    = os.path.join(BASE_DIR, "CLAUDE.md")
+CLAUDE_MD = os.path.join(BASE_DIR, "CLAUDE.md")
+
+HTML_FILES = [
+    (ROADMAP_HTML, "quantum_roadmap.html"),
+    (BY_TYPE_HTML, "quantum_by_type.html"),
+]
 
 # 収集対象のRSSフィード
 RSS_FEEDS = [
@@ -28,191 +56,329 @@ RSS_FEEDS = [
     "https://www.sciencedaily.com/rss/computers_math/quantum_computers.xml",
     "https://developer.nvidia.com/blog/tag/quantum-computing/feed/",
     "https://research.ibm.com/blog/rss.xml",
+    "https://quantumzeitgeist.com/feed/",
 ]
 
 # フィルタリングキーワード
 KEYWORDS = [
-    "quantum", "qubit", "FTQC", "error correction", "calibration",
-    "IBM", "Google", "NVIDIA", "Microsoft", "IonQ", "Quantinuum",
-    "PsiQuantum", "Atom Computing", "QuEra", "Rigetti",
-    "富士通", "NTT", "産総研", "量子", "Majorana", "CUDA-Q", "NVQLink",
-    "Ising", "logical qubit", "fault tolerant",
+    "quantum", "qubit", "FTQC", "error correction", "error mitigation",
+    "calibration", "logical qubit", "fault tolerant", "quantum advantage",
+    "IBM", "Google", "NVIDIA", "Microsoft", "IonQ", "Quantinuum", "Qedma",
+    "PsiQuantum", "Atom Computing", "QuEra", "Rigetti", "D-Wave", "Pasqal",
+    "IQM", "Xanadu", "Infleqtion", "HRL",
+    "富士通", "NTT", "産総研", "理研", "日立", "量子",
+    "Majorana", "CUDA-Q", "NVQLink", "Ising", "anyon", "PQC",
 ]
+
+# モード別パラメーター
+MODE_CONFIG = {
+    "weekly": {
+        "lookback_days": 7,
+        "max_items": 10,
+        "commit_label": "週次",
+    },
+    "monthly": {
+        "lookback_days": 31,
+        "max_items": 16,
+        "commit_label": "月次",
+    },
+}
+
 
 # ============================================================
 # ① ニュース収集
 # ============================================================
-def fetch_news() -> list[dict]:
-    """RSSフィードから直近7日間の量子関連ニュースを収集する"""
-    items = []
-    cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+def fetch_news(lookback_days: int, max_items: int) -> list[dict]:
+    """RSSフィードから直近 lookback_days 日間の量子関連ニュースを収集する"""
+    items: list[dict] = []
+    cutoff = datetime.now(timezone.utc) - timedelta(days=lookback_days)
+
+    # SSL証明書エラー回避（企業ネットワーク等の中間CA対応）
+    ssl_ctx = ssl.create_default_context()
+    ssl_ctx.check_hostname = False
+    ssl_ctx.verify_mode = ssl.CERT_NONE
 
     for url in RSS_FEEDS:
         try:
+            # まず標準パースを試み、失敗またはエントリ0件ならSSL無効でリトライ
             feed = feedparser.parse(url)
-            for entry in feed.entries[:20]:
+            if not feed.entries:
+                req = urllib.request.Request(
+                    url, headers={"User-Agent": "Mozilla/5.0 feedparser"}
+                )
+                with urllib.request.urlopen(req, timeout=15, context=ssl_ctx) as resp:
+                    feed = feedparser.parse(resp.read())
+
+            for entry in feed.entries[:30]:
                 published = None
-                if hasattr(entry, "published_parsed") and entry.published_parsed:
+                if getattr(entry, "published_parsed", None):
                     published = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
                 if published and published < cutoff:
                     continue
 
-                title   = getattr(entry, "title", "")
+                title = getattr(entry, "title", "")
                 summary = getattr(entry, "summary", "")
-                link    = getattr(entry, "link", "")
-                text    = (title + " " + summary).lower()
+                link = getattr(entry, "link", "")
+                text = f"{title} {summary}".lower()
 
                 if any(kw.lower() in text for kw in KEYWORDS):
-                    # HTMLタグを除去してクリーンなテキストにする
-                    clean_summary = re.sub(r"<[^>]+>", "", summary)[:200]
+                    clean_summary = re.sub(r"<[^>]+>", "", summary).strip()[:220]
                     items.append({
-                        "title":   title,
+                        "title": title,
                         "summary": clean_summary,
-                        "link":    link,
-                        "date":    published.strftime("%Y-%m-%d") if published else "unknown",
+                        "link": link,
+                        "date": published.strftime("%Y-%m-%d") if published else "unknown",
+                        "sort_key": published or datetime.min.replace(tzinfo=timezone.utc),
                     })
-        except Exception as e:
-            print(f"⚠️  RSSフェッチ失敗 ({url}): {e}")
+        except Exception as exc:  # noqa: BLE001 - フィード単位で失敗を握りつぶす
+            print(f"⚠️  RSSフェッチ失敗 ({url}): {exc}")
 
-    # 重複除去
-    seen, unique = set(), []
-    for item in items:
-        if item["title"] not in seen:
-            seen.add(item["title"])
-            unique.append(item)
+    # 重複除去（タイトル基準）→ 新しい順
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for item in sorted(items, key=lambda x: x["sort_key"], reverse=True):
+        if item["title"] in seen:
+            continue
+        seen.add(item["title"])
+        unique.append(item)
 
-    print(f"✅ ニュース収集完了: {len(unique)} 件")
-    return unique[:10]
+    print(f"✅ ニュース収集完了: {len(unique)} 件（直近{lookback_days}日）")
+    return unique[:max_items]
 
 
 # ============================================================
-# ② HTMLファイルの日付更新
+# ② 日付表記の更新
 # ============================================================
-def update_html_date(filepath: str, today: str) -> None:
-    """HTML内の「作成日：」をToday日付に更新する"""
+def target_month() -> tuple[int, int, int]:
+    """月次まとめの対象月を (年, 月, 末日) で返す
+
+    毎月1日の cron で走った場合は「前月のまとめ」を作るのが自然なので、
+    1日実行のときだけ前月を対象にする。月中の手動実行なら当月扱い。
+    """
+    if NOW.day == 1:
+        last = NOW.replace(day=1) - timedelta(days=1)
+        return last.year, last.month, last.day
+    return NOW.year, NOW.month, NOW.day
+
+
+def build_footer_label(mode: str) -> str:
+    """フッターに表示する最終更新ラベルを組み立てる"""
+    if mode == "monthly":
+        _, month, _ = target_month()
+        return f"最終更新：{TODAY_JP}（{month}月度 月次更新）"
+    return f"最終更新：{TODAY_JP}"
+
+
+def update_dates(filepath: str, label: str, mode: str, dry_run: bool) -> None:
+    """現在地バッジとフッター日付を更新する"""
     if not os.path.exists(filepath):
         print(f"⚠️  ファイルが見つかりません（スキップ）: {filepath}")
         return
+
     with open(filepath, "r", encoding="utf-8") as f:
-        content = f.read()
-    updated = re.sub(
-        r"作成日：\d{4}年\d{1,2}月\d{1,2}日",
-        f"作成日：{today}",
+        original = f.read()
+
+    content = original
+
+    # 📍 現在地：2026年7月31日
+    content = re.sub(
+        r"現在地：\d{4}年\d{1,2}月\d{1,2}日",
+        f"現在地：{TODAY_JP_SHORT}",
         content,
     )
-    if updated != content:
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(updated)
-        print(f"✅ 日付更新: {os.path.basename(filepath)}")
-    else:
-        print(f"ℹ️  日付変更なし: {os.path.basename(filepath)}")
+
+    # 最終更新：2026年07月31日（7月度 月次更新） ← 括弧付き注記も丸ごと置換
+    content = re.sub(
+        r"最終更新：\d{4}年\d{1,2}月\d{1,2}日(?:（[^）]*）)?",
+        build_footer_label(mode),
+        content,
+    )
+
+    # 旧フォーマット（作成日：）にも後方互換で対応
+    content = re.sub(
+        r"作成日：\d{4}年\d{1,2}月\d{1,2}日",
+        f"作成日：{TODAY_JP}",
+        content,
+    )
+
+    if content == original:
+        print(f"ℹ️  日付変更なし: {label}")
+        return
+    if dry_run:
+        print(f"🔍 [dry-run] 日付更新対象: {label}")
+        return
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"✅ 日付更新: {label}")
 
 
 # ============================================================
-# ③ ニュースセクションをHTMLに挿入・更新（共通関数）
+# ③ ニュースセクションの生成・差し替え
 # ============================================================
-def build_news_section(news_items: list[dict], section_id: str = "weekly-news") -> str:
-    """ニュースセクションのHTML文字列を生成する"""
-    cards_html = ""
+NEWS_START = "<!-- NEWS_SECTION_START -->"
+NEWS_END = "<!-- NEWS_SECTION_END -->"
+HIGHLIGHT_START = "<!-- HIGHLIGHT_START -->"
+HIGHLIGHT_END = "<!-- HIGHLIGHT_END -->"
+
+
+def esc(text: str) -> str:
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def build_heading(mode: str) -> str:
+    if mode == "monthly":
+        year, month, last_day = target_month()
+        return f"📰 {year}年{month}月 まとめ（月次更新・{month}/1〜{month}/{last_day}）"
+    return f"📰 今週の量子ニュース（{TODAY_JP}更新）"
+
+
+def extract_highlight(content: str) -> str:
+    """既存のハイライトブロック（手動編集分）を取り出す"""
+    match = re.search(
+        re.escape(HIGHLIGHT_START) + r".*?" + re.escape(HIGHLIGHT_END),
+        content,
+        flags=re.DOTALL,
+    )
+    return match.group(0) if match else ""
+
+
+def build_news_section(news_items: list[dict], mode: str, highlight: str) -> str:
+    """ニュースセクションのHTML文字列を生成する（タグは必ず対で閉じる）"""
+    cards = []
+    if highlight:
+        cards.append(f"      {highlight}")
+
     for item in news_items:
-        title   = item["title"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        summary = item["summary"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        link    = item["link"]
-        date    = item["date"]
-        cards_html += f"""      <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:14px;margin-bottom:10px;">
-        <div style="font-size:11px;color:#64748b;margin-bottom:6px;">{date}</div>
-        <a href="{link}" target="_blank" style="color:#60a5fa;text-decoration:none;font-weight:600;font-size:13px;">{title}</a>
-        <p style="color:#94a3b8;font-size:12px;margin:6px 0 0;">{summary}</p>
-      </div>\n"""
+        cards.append(
+            '      <div style="background:#1e293b;border:1px solid #334155;'
+            'border-radius:8px;padding:14px;margin-bottom:10px;">\n'
+            f'        <div style="font-size:11px;color:#64748b;margin-bottom:6px;">{esc(item["date"])}</div>\n'
+            f'        <a href="{esc(item["link"])}" target="_blank" '
+            'style="color:#60a5fa;text-decoration:none;font-weight:600;font-size:13px;">'
+            f'{esc(item["title"])}</a>\n'
+            f'        <p style="color:#94a3b8;font-size:12px;margin:6px 0 0;">{esc(item["summary"])}</p>\n'
+            "      </div>"
+        )
 
-    return f"""<!-- NEWS_SECTION_START -->
-    <div id="{section_id}" style="background:#0f172a;border:1px solid #1e3a5f;border-radius:12px;padding:20px;margin:24px 0;">
-      <h3 style="color:#60a5fa;margin:0 0 16px;font-size:16px;">📰 今週の量子ニュース（{TODAY}更新）</h3>
-{cards_html}    </div>
-    <!-- NEWS_SECTION_END -->"""
+    cards_html = "\n".join(cards)
+    return (
+        f"{NEWS_START}\n"
+        '    <div id="weekly-news" style="background:#0f172a;border:1px solid #1e3a5f;'
+        'border-radius:12px;padding:20px;margin:24px 0;">\n'
+        f'      <h3 style="color:#60a5fa;margin:0 0 16px;font-size:16px;">{build_heading(mode)}</h3>\n'
+        f"{cards_html}\n"
+        "    </div>\n"
+        f"    {NEWS_END}"
+    )
 
 
-def update_news_section(filepath: str, news_items: list[dict], label: str) -> None:
-    """指定HTMLファイルの週次ニュースセクションを更新する"""
+def update_news_section(filepath: str, label: str, news_items: list[dict],
+                        mode: str, dry_run: bool) -> None:
+    """指定HTMLファイルのニュースセクションを差し替える"""
     if not os.path.exists(filepath):
-        print(f"⚠️  {os.path.basename(filepath)} が見つかりません（スキップ）")
+        print(f"⚠️  {label} が見つかりません（スキップ）")
         return
-
     if not news_items:
-        print("ℹ️  今週のニュースなし。ニュースセクションはスキップ。")
+        print(f"ℹ️  対象期間のニュースなし。{label} のニュースセクションはスキップ。")
         return
-
-    news_section = build_news_section(news_items)
 
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # 既存のニュースセクションを置換、なければ </body> 直前に挿入
-    if "<!-- NEWS_SECTION_START -->" in content:
+    highlight = extract_highlight(content)
+    section = build_news_section(news_items, mode, highlight)
+
+    if NEWS_START in content:
         updated = re.sub(
-            r"<!-- NEWS_SECTION_START -->.*?<!-- NEWS_SECTION_END -->",
-            news_section,
+            re.escape(NEWS_START) + r".*?" + re.escape(NEWS_END),
+            lambda _: section,
             content,
             flags=re.DOTALL,
         )
     else:
-        updated = content.replace("</body>", f"\n    {news_section}\n</body>", 1)
+        updated = content.replace("</body>", f"\n    {section}\n</body>", 1)
+
+    if dry_run:
+        print(f"🔍 [dry-run] ニュースセクション更新対象: {label}（{len(news_items)}件）")
+        return
 
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(updated)
-    print(f"✅ ニュースセクション更新 ({label}): {len(news_items)}件")
+    kept = "（ハイライト保持）" if highlight else ""
+    print(f"✅ ニュースセクション更新: {label} {len(news_items)}件{kept}")
 
 
 # ============================================================
-# ④ CLAUDE.md の更新日を更新
+# ④ CLAUDE.md の更新
 # ============================================================
-def update_claude_md() -> None:
+def update_claude_md(mode: str, dry_run: bool) -> None:
     if not os.path.exists(CLAUDE_MD):
-        print(f"⚠️  CLAUDE.md が見つかりません（スキップ）")
+        print("⚠️  CLAUDE.md が見つかりません（スキップ）")
         return
+
     with open(CLAUDE_MD, "r", encoding="utf-8") as f:
         content = f.read()
+
     updated = re.sub(
-        r"\*\*最終更新：\*\*\s*\d{4}年\d{1,2}月\d{1,2}日",
-        f"**最終更新：** {TODAY}",
+        r"\*\*最終更新：\*\*\s*\d{4}年\d{1,2}月\d{1,2}日(?:（[^）]*）)?",
+        f"**最終更新：** {build_footer_label(mode).replace('最終更新：', '')}",
         content,
     )
+
+    if updated == content:
+        print("ℹ️  CLAUDE.md 変更なし")
+        return
+    if dry_run:
+        print("🔍 [dry-run] CLAUDE.md 更新対象")
+        return
+
     with open(CLAUDE_MD, "w", encoding="utf-8") as f:
         f.write(updated)
-    print(f"✅ CLAUDE.md 更新日を更新")
+    print("✅ CLAUDE.md 最終更新日を更新")
 
 
 # ============================================================
 # メイン
 # ============================================================
-def main():
-    print(f"\n{'='*50}")
-    print(f"🔄 量子ニュース週次更新 — {TODAY}")
-    print(f"{'='*50}\n")
+def main() -> int:
+    parser = argparse.ArgumentParser(description="量子コンピューター ニュース更新")
+    parser.add_argument("--mode", choices=["weekly", "monthly"], default="weekly",
+                        help="更新モード（既定: weekly）")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="ファイルを書き換えずに結果のみ表示")
+    args = parser.parse_args()
 
-    # ① ニュース収集
-    news_items = fetch_news()
+    cfg = MODE_CONFIG[args.mode]
 
-    # ② HTMLの日付更新
-    update_html_date(ROADMAP_HTML, TODAY)
-    update_html_date(BY_TYPE_HTML, TODAY)
+    print(f"\n{'=' * 56}")
+    print(f"🔄 量子ニュース{cfg['commit_label']}更新 — {TODAY_JP}"
+          f"{'  [dry-run]' if args.dry_run else ''}")
+    print(f"{'=' * 56}\n")
 
-    # ③ ニュースセクション更新（両ファイル）
-    update_news_section(ROADMAP_HTML, news_items, "quantum_roadmap.html")
-    update_news_section(BY_TYPE_HTML, news_items, "quantum_by_type.html")
+    news_items = fetch_news(cfg["lookback_days"], cfg["max_items"])
 
-    # ④ CLAUDE.md 更新
-    update_claude_md()
+    for path, label in HTML_FILES:
+        update_dates(path, label, args.mode, args.dry_run)
+    for path, label in HTML_FILES:
+        update_news_section(path, label, news_items, args.mode, args.dry_run)
 
-    # サマリー出力
-    print(f"\n{'='*50}")
-    print(f"📋 今週のニュース ({len(news_items)}件)")
-    print(f"{'='*50}")
+    update_claude_md(args.mode, args.dry_run)
+
+    print(f"\n{'=' * 56}")
+    print(f"📋 収集ニュース（{len(news_items)}件）")
+    print(f"{'=' * 56}")
     for item in news_items:
-        print(f"  [{item['date']}] {item['title'][:60]}")
+        print(f"  [{item['date']}] {item['title'][:64]}")
 
-    print(f"\n✅ 更新完了: {TODAY}\n")
+    print(f"\n✅ 更新完了: {TODAY_JP}\n")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
