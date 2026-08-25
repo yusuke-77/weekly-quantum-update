@@ -79,16 +79,42 @@ RSS_FEEDS_JA = [
 
 RSS_FEEDS = RSS_FEEDS_EN + RSS_FEEDS_JA
 
-# フィルタリングキーワード
-KEYWORDS = [
-    "quantum", "qubit", "FTQC", "error correction", "error mitigation",
-    "calibration", "logical qubit", "fault tolerant", "quantum advantage",
+# --- フィルタリング ---
+# 量子分野の中核語。最低1つ含まれることを必須にする。
+# 企業名だけで拾うと「NVIDIA が画像AIを発表」のような無関係記事が混ざるため、
+# 企業名は採用条件にせず、後段のスコアリングにのみ使う。
+CORE_KEYWORDS = [
+    "quantum", "qubit", "qpu", "ftqc", "nisq", "anyon", "majorana",
+    "post-quantum", "error correction", "error mitigation",
+    "fault tolerant", "fault-tolerant", "quantum advantage", "annealing",
+    "量子", "キュービット", "耐量子",
+]
+
+# 中核語を含む記事の中で、優先的に採用したい固有名詞
+PRIORITY_KEYWORDS = [
     "IBM", "Google", "NVIDIA", "Microsoft", "IonQ", "Quantinuum", "Qedma",
     "PsiQuantum", "Atom Computing", "QuEra", "Rigetti", "D-Wave", "Pasqal",
-    "IQM", "Xanadu", "Infleqtion", "HRL",
-    "富士通", "NTT", "産総研", "理研", "日立", "量子",
-    "Majorana", "CUDA-Q", "NVQLink", "Ising", "anyon", "PQC",
+    "IQM", "Xanadu", "Infleqtion", "HRL", "Willow", "Heron", "Helios",
+    "富士通", "NTT", "産総研", "理研", "日立", "分子科学研究所", "NEDO",
+    "CUDA-Q", "NVQLink", "PQC",
 ]
+
+# 中核語を含んでいても除外したいノイズ（量子と無関係な文脈で使われる語）
+EXCLUDE_PATTERNS = [
+    "quantum leap", "quantum of solace",
+]
+
+
+def relevance_score(text: str) -> int:
+    """量子ニュースとしての関連度。0なら不採用"""
+    low = text.lower()
+    if any(x in low for x in EXCLUDE_PATTERNS):
+        return 0
+    core = sum(1 for k in CORE_KEYWORDS if k.lower() in low)
+    if core == 0:
+        return 0
+    priority = sum(1 for k in PRIORITY_KEYWORDS if k.lower() in low)
+    return core * 2 + priority
 
 # モード別パラメーター
 MODE_CONFIG = {
@@ -141,7 +167,8 @@ def fetch_news(lookback_days: int, max_items: int) -> list[dict]:
                 link = getattr(entry, "link", "")
                 text = f"{title} {summary}".lower()
 
-                if any(kw.lower() in text for kw in KEYWORDS):
+                score = relevance_score(text)
+                if score > 0:
                     clean_summary = re.sub(r"<[^>]+>", "", summary).strip()[:220]
                     # Googleニュースの要約は媒体名リンクの羅列になりがちなので削る
                     clean_summary = re.sub(r"\s{2,}", " ", clean_summary)
@@ -149,6 +176,7 @@ def fetch_news(lookback_days: int, max_items: int) -> list[dict]:
                         "title": title,
                         "summary": clean_summary,
                         "link": link,
+                        "score": score,
                         "date": published.strftime("%Y-%m-%d") if published else "unknown",
                         "sort_key": published or datetime.min.replace(tzinfo=timezone.utc),
                     })
@@ -166,10 +194,15 @@ def fetch_news(lookback_days: int, max_items: int) -> list[dict]:
         seen.add(key)
         unique.append(item)
 
-    ja = sum(1 for i in unique if is_japanese(i["title"]))
-    print(f"✅ ニュース収集完了: {len(unique)} 件"
-          f"（日本語 {ja} / 英語 {len(unique) - ja}・直近{lookback_days}日）")
-    return unique[:max_items]
+    # 関連度の高い記事から max_items 件を採用し、表示は新しい順に戻す
+    selected = sorted(unique, key=lambda x: x["score"], reverse=True)[:max_items]
+    selected.sort(key=lambda x: x["sort_key"], reverse=True)
+
+    ja = sum(1 for i in selected if is_japanese(i["title"]))
+    print(f"✅ ニュース収集完了: {len(selected)} 件を採用"
+          f"（候補 {len(unique)} 件 / 日本語 {ja} / 英語 {len(selected) - ja}"
+          f"・直近{lookback_days}日）")
+    return selected
 
 
 # ============================================================
@@ -180,7 +213,13 @@ def fetch_news(lookback_days: int, max_items: int) -> list[dict]:
 # どちらも使えなければ英語のまま出力する（処理は止めない）。
 # ============================================================
 GITHUB_MODELS_URL = "https://models.github.ai/inference/chat/completions"
-GITHUB_MODELS_MODEL = "openai/gpt-4o-mini"
+GITHUB_MODELS_API_VERSION = "2026-03-10"
+# カタログから外れる場合に備えて候補を順に試す
+GITHUB_MODELS_CANDIDATES = [
+    "openai/gpt-4.1-mini",
+    "openai/gpt-4o-mini",
+    "openai/gpt-4.1",
+]
 
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
@@ -217,8 +256,16 @@ def _post_json(url: str, body: dict, headers: dict, timeout: int = 90) -> dict:
     req = urllib.request.Request(
         url, data=json.dumps(body).encode("utf-8"), headers=headers
     )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read())
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read())
+    except urllib.error.HTTPError as err:
+        # 原因究明のためレスポンス本文まで含めて例外を投げ直す
+        try:
+            detail = err.read().decode("utf-8", "replace")[:300]
+        except Exception:  # noqa: BLE001
+            detail = "(本文取得不可)"
+        raise RuntimeError(f"HTTP {err.code}: {detail}") from None
 
 
 def _extract_json_array(text: str) -> list:
@@ -231,21 +278,35 @@ def _extract_json_array(text: str) -> list:
 
 
 def _translate_via_github_models(prompt: str, token: str) -> list:
-    """GitHub Models（無料枠あり・GITHUB_TOKENで利用可）で翻訳する"""
-    data = _post_json(
-        GITHUB_MODELS_URL,
-        {
-            "model": GITHUB_MODELS_MODEL,
-            "temperature": 0,
-            "messages": [{"role": "user", "content": prompt}],
-        },
-        {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {token}",
-            "Accept": "application/vnd.github+json",
-        },
-    )
-    return _extract_json_array(data["choices"][0]["message"]["content"])
+    """GitHub Models（無料枠あり・GITHUB_TOKENで利用可）で翻訳する
+
+    モデルがカタログから外れることがあるため、候補を順に試す。
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": GITHUB_MODELS_API_VERSION,
+    }
+
+    last_error = None
+    for model in GITHUB_MODELS_CANDIDATES:
+        try:
+            data = _post_json(
+                GITHUB_MODELS_URL,
+                {
+                    "model": model,
+                    "temperature": 0,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                headers,
+            )
+            return _extract_json_array(data["choices"][0]["message"]["content"])
+        except Exception as exc:  # noqa: BLE001 - 次の候補モデルを試す
+            last_error = exc
+            print(f"   ↳ {model} で失敗: {exc}")
+
+    raise RuntimeError(f"全モデル候補で失敗: {last_error}")
 
 
 def _translate_via_anthropic(prompt: str, api_key: str) -> list:
@@ -303,26 +364,33 @@ def translate_items(items: list[dict], enabled: bool) -> list[dict]:
               " — 英語のまま出力")
         return items
 
-    payload = json.dumps(
-        [{"title": i["title"], "summary": i["summary"]} for i in targets],
-        ensure_ascii=False,
-    )
-    prompt = TRANSLATE_PROMPT.format(payload=payload)
+    # まとめて投げると件数ズレや出力打ち切りが起きやすいので小分けにする。
+    # 一部のバッチが失敗しても、成功した分だけ日本語化される。
+    batch_size = 4
+    done = 0
+    for start in range(0, len(targets), batch_size):
+        batch = targets[start:start + batch_size]
+        payload = json.dumps(
+            [{"title": i["title"], "summary": i["summary"]} for i in batch],
+            ensure_ascii=False,
+        )
+        try:
+            translated = runner(TRANSLATE_PROMPT.format(payload=payload))
+            if not isinstance(translated, list) or len(translated) != len(batch):
+                got = len(translated) if isinstance(translated, list) else "?"
+                print(f"⚠️  件数不一致（{got}/{len(batch)}）。このバッチは英語のまま")
+                continue
+            for original, ja in zip(batch, translated):
+                original["title"] = ja.get("title") or original["title"]
+                original["summary"] = ja.get("summary") or original["summary"]
+            done += len(batch)
+        except Exception as exc:  # noqa: BLE001 - 翻訳失敗で更新を止めない
+            print(f"⚠️  翻訳に失敗（このバッチは英語のまま / {backend}）: {exc}")
 
-    try:
-        translated = runner(prompt)
-        if not isinstance(translated, list) or len(translated) != len(targets):
-            got = len(translated) if isinstance(translated, list) else "?"
-            print(f"⚠️  翻訳結果の件数が不一致（{got}/{len(targets)}）。英語のまま使用")
-            return items
-
-        for original, ja in zip(targets, translated):
-            original["title"] = ja.get("title") or original["title"]
-            original["summary"] = ja.get("summary") or original["summary"]
-
-        print(f"✅ 日本語に翻訳: {len(targets)} 件（{backend}）")
-    except Exception as exc:  # noqa: BLE001 - 翻訳失敗で更新を止めない
-        print(f"⚠️  翻訳に失敗（英語のまま続行 / {backend}）: {exc}")
+    if done:
+        print(f"✅ 日本語に翻訳: {done}/{len(targets)} 件（{backend}）")
+    else:
+        print(f"⚠️  翻訳できませんでした（英語のまま出力 / {backend}）")
 
     return items
 
